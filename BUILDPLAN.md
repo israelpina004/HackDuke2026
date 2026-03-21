@@ -41,15 +41,18 @@ A multimodal AI platform that transforms static medical PDFs into a **living, sh
 #### Phase D: Clarity & Sharing (UX Features)
 * **The "Unclear" Loop:** A button that triggers Gemini to re-explain a specific medical task using a 5th-grade reading level or simple analogy.
 * **WhatsApp/IMS Export:** A native "Share" button via the Web Share API to send a concise text summary to family group chats.
+* **Calendar Export:** Ability to generate and download an `.ics` file for medication schedules to sync natively with Apple Calendar or Google Calendar.
 
 ---
 
 ### 🚰 5. The "Plumbing" Blueprint (Auth & Data)
 
-**The Auth0 "Dynamic Default" Shortcut:**
-Using a single Post-Login Action to handle roles without complex database writes.
-* If a user logs in with no roles, Auth0 dynamically injects `["Caregiver"]` into their token.
-* Next.js middleware uses this token to block Caregivers from the `/upload` route.
+**The MongoDB Role Strategy (Replacing Auth0 Actions):**
+Instead of wrestling with Auth0 rule injections or custom JWT claims, we use a single source of truth:
+* We capture basic Email/Password via Auth0.
+* Upon login, our Next.js Server Layouts query MongoDB for their profile.
+* If a User doesn't exist, we forcibly route them to `/onboarding` to capture their Name, Phone Number, and explicitly set their **Role** (Caregiver vs Coordinator).
+* To block Caregivers from sensitive routes (like `/upload`), Server Components simply check `dbUser.role === 'Coordinator'`.
 
 **The MongoDB "CarePlan" Schema:**
 Unified embedded document, avoiding relational complexity.

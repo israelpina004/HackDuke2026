@@ -12,14 +12,21 @@ export default async function Home() {
         
         {!user ? (
           <div>
-            <p className="text-slate-600 mb-6">Please log in to view the dashboard.</p>
-            {/* Note the updated URL below */}
-            <a 
-              href="/auth/login" 
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              Log In
-            </a>
+            <p className="text-slate-600 mb-6">Please log in or sign up to view the dashboard.</p>
+            <div className="flex justify-center gap-4">
+              <a 
+                href="/auth/login" 
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Log In
+              </a>
+              <a 
+                href="/auth/login?screen_hint=signup" 
+                className="bg-slate-200 text-slate-800 px-6 py-3 rounded-lg font-medium hover:bg-slate-300 transition-colors"
+              >
+                Sign Up
+              </a>
+            </div>
           </div>
         ) : (
           <div>
@@ -29,9 +36,15 @@ export default async function Home() {
             <div className="flex flex-col gap-3">
               <a 
                 href="/dashboard" 
-                className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                className="bg-green-600 text-white text-center px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
               >
                 Go to Dashboard
+              </a>
+              <a 
+                href="/link" 
+                className="bg-blue-100 text-blue-700 text-center px-6 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+              >
+                Join Care Plan (Caregiver)
               </a>
               {/* Note the updated URL below */}
               <a 
