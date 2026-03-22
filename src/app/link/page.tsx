@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound, ArrowRight, Activity } from "lucide-react";
+import { KeyRound, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/translations/LanguageContext";
+import AppHeader from "@/components/AppHeader";
 
 export default function LinkCaregiverPage() {
   const [inviteCode, setInviteCode] = useState("");
@@ -10,6 +12,7 @@ export default function LinkCaregiverPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +29,10 @@ export default function LinkCaregiverPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to link to care plan.");
+        throw new Error(data.error || t('failedLink'));
       }
 
-      setSuccess("Successfully linked! Initializing dashboard...");
+      setSuccess(t('successLink'));
       setTimeout(() => {
         router.push("/dashboard");
       }, 1500);
@@ -42,10 +45,7 @@ export default function LinkCaregiverPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
-      <div className="absolute top-8 left-8 flex items-center gap-2">
-         <Activity className="h-6 w-6 text-blue-600" />
-         <span className="font-bold text-lg text-slate-800">Care Handoff</span>
-      </div>
+      <AppHeader />
 
       <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-100 relative overflow-hidden">
         {/* Decorative background element */}
@@ -58,9 +58,9 @@ export default function LinkCaregiverPage() {
             </div>
           </div>
           
-          <h1 className="text-3xl font-extrabold text-slate-800 text-center mb-2 tracking-tight">Join a Care Plan</h1>
+          <h1 className="text-3xl font-extrabold text-slate-800 text-center mb-2 tracking-tight">{t('linkTitle')}</h1>
           <p className="text-slate-500 text-center mb-8 leading-relaxed">
-            Enter the 6-character invite code provided by your care coordinator to access the portal.
+            {t('linkSubtitle')}
           </p>
           
           <form onSubmit={handleLink} className="flex flex-col gap-5">
@@ -71,7 +71,7 @@ export default function LinkCaregiverPage() {
                 maxLength={6}
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                placeholder="Ex. X7B9TQ"
+                placeholder={t('inviteCodePlaceholder')}
                 className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-[0.3em] font-medium text-xl text-center placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal transition-all duration-200"
                 required
               />
@@ -94,10 +94,10 @@ export default function LinkCaregiverPage() {
               className="group w-full bg-blue-600 text-white font-semibold flex items-center justify-center gap-2 py-4 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/20 disabled:opacity-50 disabled:hover:shadow-none disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98]"
             >
               {loading ? (
-                <span className="animate-pulse">Verifying...</span>
+                <span className="animate-pulse">{t('verifying')}</span>
               ) : (
                 <>
-                  Connect <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  {t('connectBtn')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
@@ -106,7 +106,7 @@ export default function LinkCaregiverPage() {
       </div>
       
       <p className="mt-8 text-sm text-slate-400">
-        Requires authorization from the primary care team.
+        {t('requiresAuth')}
       </p>
     </div>
   );

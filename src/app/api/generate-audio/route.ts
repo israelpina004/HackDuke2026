@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Replace with the Voice ID you copied from the dashboard
-        const VOICE_ID = 'fATgBRI8wg5KkDFg8vBd';
+        const VOICE_ID = 'FUfBrNit0NNZAwb58KWH';
         const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
         const response = await fetch(

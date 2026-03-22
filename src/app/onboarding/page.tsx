@@ -2,12 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UserCircle, ArrowRight, Activity, Beaker, HeartHandshake } from "lucide-react";
+import { UserCircle, ArrowRight, Beaker, HeartHandshake, Globe } from "lucide-react";
+import { LANGUAGES } from "@/translations";
+import { useLanguage } from "@/translations/LanguageContext";
+import AppHeader from "@/components/AppHeader";
 
 export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("Caregiver");
+  const { language, t } = useLanguage();
+  const [preferredLanguage, setPreferredLanguage] = useState<string>(language);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -21,12 +27,12 @@ export default function OnboardingPage() {
       const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, role }),
+        body: JSON.stringify({ name, phone, role, preferredLanguage }),
       });
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to save profile.");
+        throw new Error(data.error || t('failedSave'));
       }
 
       // Route based on role selection
@@ -43,10 +49,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
-      <div className="absolute top-8 left-8 flex items-center gap-2">
-         <Activity className="h-6 w-6 text-blue-600" />
-         <span className="font-bold text-lg text-slate-800">Care Handoff</span>
-      </div>
+      <AppHeader />
 
       <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 rounded-full bg-blue-50 blur-3xl"></div>
@@ -58,40 +61,57 @@ export default function OnboardingPage() {
             </div>
           </div>
           
-          <h1 className="text-3xl font-extrabold text-slate-800 text-center mb-2 tracking-tight">Complete Profile</h1>
+          <h1 className="text-3xl font-extrabold text-slate-800 text-center mb-2 tracking-tight">{t('completeProfile')}</h1>
           <p className="text-slate-500 text-center mb-8 leading-relaxed">
-            Welcome! Please provide your details so your care team can reach you.
+            {t('onboardingWelcome')}
           </p>
           
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
+              <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1">{t('fullName')}</label>
               <input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
+                placeholder={t('namePlaceholder')}
                 className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-slate-800"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-1">Phone Number</label>
+              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-1">{t('phoneNumber')}</label>
               <input
                 id="phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="(555) 123-4567"
+                placeholder={t('phonePlaceholder')}
                 className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-slate-800"
                 required
               />
             </div>
+
+            <div>
+              <label htmlFor="language" className="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                <Globe size={16} className="text-slate-400" />
+                {t('prefLanguage')}
+              </label>
+              <select
+                id="language"
+                value={preferredLanguage}
+                onChange={(e) => setPreferredLanguage(e.target.value)}
+                className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-slate-800"
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>{lang.name}</option>
+                ))}
+              </select>
+            </div>
             
             <div className="pt-2">
-              <span className="block text-sm font-semibold text-slate-700 mb-2">I am a:</span>
+              <span className="block text-sm font-semibold text-slate-700 mb-2">{t('iAmA')}</span>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -103,7 +123,7 @@ export default function OnboardingPage() {
                   }`}
                 >
                   <HeartHandshake size={18} />
-                  <span className="font-semibold text-sm">Caregiver</span>
+                  <span className="font-semibold text-sm">{t('roleCaregiver')}</span>
                 </button>
                 <button
                   type="button"
@@ -115,7 +135,7 @@ export default function OnboardingPage() {
                   }`}
                 >
                   <Beaker size={18} />
-                  <span className="font-semibold text-sm">Coordinator</span>
+                  <span className="font-semibold text-sm">{t('roleCoordinator')}</span>
                 </button>
               </div>
             </div>
@@ -132,10 +152,10 @@ export default function OnboardingPage() {
               className="group w-full bg-blue-600 text-white font-semibold flex items-center justify-center gap-2 py-4 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/20 disabled:opacity-50 disabled:hover:shadow-none disabled:cursor-not-allowed transition-all duration-200 mt-2 active:scale-[0.98]"
             >
               {loading ? (
-                <span className="animate-pulse">Saving...</span>
+                <span className="animate-pulse">{t('saving')}</span>
               ) : (
                 <>
-                  Continue <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  {t('continueBtn')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>

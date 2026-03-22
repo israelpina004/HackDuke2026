@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, phone, role } = await req.json();
+    const { name, phone, role, preferredLanguage } = await req.json();
 
     if (!name || !phone) {
       return NextResponse.json({ error: "Name and phone are required." }, { status: 400 });
@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
       auth0Id: session.user.sub,
       name,
       phone,
-      role: role || 'Caregiver'
+      role: role || 'Caregiver',
+      preferredLanguage: preferredLanguage || 'en'
     });
 
     return NextResponse.json({

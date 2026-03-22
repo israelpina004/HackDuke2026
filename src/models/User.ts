@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: string;
   phone: string;
   role: string;
+  preferredLanguage: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +16,7 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true },
     phone: { type: String, required: true },
     role: { type: String, default: 'Caregiver' },
+    preferredLanguage: { type: String, default: 'en' },
   },
   {
     timestamps: true,
