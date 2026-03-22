@@ -26,7 +26,7 @@ A multimodal AI platform that transforms static medical PDFs into a **living, sh
 ### 🚀 4. Core Features & Implementation
 
 #### Phase A: The "Paperwork to Plan" Engine (Gemini OCR)
-* **Direct Extraction:** Coordinator uploads a photo/PDF of discharge papers. Gemini 1.5 Flash parses the jargon into structured JSON.
+* **Direct Extraction:** Coordinator uploads a photo/PDF of discharge papers. Gemini 2.5 Flash parses the jargon into structured JSON.
 * **Confidence Scoring:** The AI tags each extracted medication or task with a `High`, `Medium`, or `Low` confidence rating. 
 * **AI Disclaimer:** Persistent footer stating: *"AI-generated summary. Verify with official medical documents before acting."*
 
