@@ -70,6 +70,13 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
   const [generatingAudio, setGeneratingAudio] = useState(false);
   const [explanations, setExplanations] = useState<Record<SectionKey, ExplanationState>>(initialExplanationState);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const [translating, setTranslating] = useState(false);
   const [translated, setTranslated] = useState<TranslationPayload | null>(null);
@@ -101,17 +108,18 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       return;
     }
 
-    let cancelled = false;
+    const controller = new AbortController();
     setTranslating(true);
 
     fetch("/api/translate-plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ planId: plan._id, targetLanguage: language }),
+      signal: controller.signal,
     })
       .then(async (response) => response.json() as Promise<Partial<TranslationPayload>>)
       .then((data) => {
-        if (!cancelled && data.medications && data.redFlags && data.careInstructions) {
+        if (data.medications && data.redFlags && data.careInstructions) {
           setTranslated({
             medications: data.medications,
             redFlags: data.redFlags,
@@ -119,15 +127,17 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
           });
         }
       })
-      .catch(() => {})
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      })
       .finally(() => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setTranslating(false);
         }
       });
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [isEditing, language, plan._id, plan.originalLanguage]);
 
@@ -208,11 +218,16 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       setAudioUrl(null);
     }
 
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
       const response = await fetch("/api/generate-audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan._id, language }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -230,6 +245,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       const nextAudioUrl = URL.createObjectURL(blob);
       setAudioUrl(nextAudioUrl);
     } catch (error: unknown) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       setAudioError(error instanceof Error ? error.message : t("audioError"));
     } finally {
       setGeneratingAudio(false);
@@ -242,11 +258,16 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       [section]: { text: current[section].text, loading: true, error: null },
     }));
 
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
       const response = await fetch("/api/explain-plan-section", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan._id, language, section }),
+        signal: controller.signal,
       });
       const payload = (await response.json()) as ExplanationResponse;
       if (!response.ok || !payload.explanation) {
@@ -258,6 +279,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
         [section]: { text: payload.explanation || null, loading: false, error: null },
       }));
     } catch (error: unknown) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       setExplanations((current) => ({
         ...current,
         [section]: {
