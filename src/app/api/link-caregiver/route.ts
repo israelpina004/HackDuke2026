@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import CarePlan from "@/models/CarePlan";
 import { auth0 } from "@/lib/auth0";
+import User from "@/models/User";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +18,14 @@ export async function POST(req: NextRequest) {
     }
 
     await dbConnect();
+
+    const dbUser = await User.findOne({ auth0Id: session.user.sub }).select("role").lean<{ role?: string } | null>();
+    if (!dbUser) {
+      return NextResponse.json({ error: "Profile not found." }, { status: 404 });
+    }
+    if (dbUser.role === "Coordinator") {
+      return NextResponse.json({ error: "Coordinators cannot join a care plan." }, { status: 403 });
+    }
 
     // Look for a Care Plan with the matching invite code
     const plan = await CarePlan.findOne({ inviteCode: inviteCode.toUpperCase() });

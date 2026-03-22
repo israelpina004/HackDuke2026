@@ -1,5 +1,7 @@
 import { auth0 } from '@/lib/auth0';
 import { cookies } from "next/headers";
+import dbConnect, { withTimeout } from "@/lib/mongoose";
+import User from "@/models/User";
 import { translations, LanguageCode } from "@/translations";
 import AppHeader from "@/components/AppHeader";
 
@@ -12,6 +14,20 @@ export default async function Home() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get("NEXT_LOCALE")?.value as LanguageCode) || "en";
   const t = (key: string) => translations[locale]?.[key] || translations["en"]?.[key] || key;
+  let canJoinPlan = false;
+
+  if (user?.sub) {
+    try {
+      await withTimeout(dbConnect(), 8000);
+      const dbUser = await withTimeout(
+        User.findOne({ auth0Id: user.sub }).select("role").lean<{ role?: string } | null>(),
+        5000
+      );
+      canJoinPlan = dbUser?.role === "Caregiver";
+    } catch (error) {
+      console.error("[Home] role lookup failed:", (error as Error).message);
+    }
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-slate-50 relative">
@@ -45,12 +61,14 @@ export default async function Home() {
               >
                 Dashboard
               </a>
-              <a 
-                href="/link" 
-                className="bg-blue-100 text-blue-700 text-center px-6 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors"
-              >
-                {t('joinPlan')}
-              </a>
+              {canJoinPlan && (
+                <a 
+                  href="/link" 
+                  className="bg-blue-100 text-blue-700 text-center px-6 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+                >
+                  {t('joinPlan')}
+                </a>
+              )}
               <a 
                 href="/auth/logout" 
                 className="text-slate-500 hover:text-slate-800 transition-colors mt-4"

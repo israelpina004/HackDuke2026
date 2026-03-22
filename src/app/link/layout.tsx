@@ -22,6 +22,9 @@ export default async function LinkLayout({
     if (!dbUser) {
       redirect("/onboarding");
     }
+    if (dbUser.role === "Coordinator") {
+      redirect("/dashboard");
+    }
   } catch (e) {
     console.error('[LinkLayout] DB error:', (e as Error).message);
     // Allow link page to render; the API call will validate the user
