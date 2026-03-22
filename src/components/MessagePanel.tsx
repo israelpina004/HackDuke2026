@@ -36,7 +36,7 @@ export default function MessagePanel({
   planId: string;
   currentUserId: string;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [recipients, setRecipients] = useState<RecipientOption[]>([]);
   const [selectedRecipientId, setSelectedRecipientId] = useState("");
@@ -131,6 +131,9 @@ export default function MessagePanel({
           content,
           recipientId: isCoordinator ? selectedRecipientId : undefined,
           translateToEnglish: shouldTranslate,
+          localizedContent: shouldTranslate && language !== "en" ? content : undefined,
+          sourceLanguage: shouldTranslate ? language : undefined,
+          viewerLanguage: language,
         }),
       });
       const payload = (await response.json()) as MessagesPayload;
@@ -212,7 +215,7 @@ export default function MessagePanel({
                     {isOwnMessage ? t("you") : message.senderName}
                   </div>
                   <p className="whitespace-pre-wrap text-sm leading-6">{displayedContent}</p>
-                  {message.isTranslated && message.originalContent && !isOwnMessage && (
+                  {message.isTranslated && message.originalContent && (
                     <button
                       type="button"
                       onClick={() =>
@@ -235,7 +238,7 @@ export default function MessagePanel({
                       hour: "numeric",
                       minute: "2-digit",
                     }).format(new Date(message.createdAt))}
-                    {message.isTranslated && !isOwnMessage ? ` · ${t("translatedForYou")}` : ""}
+                    {message.isTranslated ? ` · ${t("translatedForYou")}` : ""}
                     {isCoordinator && !isOwnMessage && message.receiverId === currentUserId ? ` · ${t("from")}: ${message.senderName}` : ""}
                     {isCoordinator && isOwnMessage && message.receiverName ? ` · ${t("to")}: ${message.receiverName}` : ""}
                   </div>

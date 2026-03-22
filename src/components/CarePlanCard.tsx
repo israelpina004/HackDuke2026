@@ -27,6 +27,12 @@ interface ExplanationState {
   error: string | null;
 }
 
+interface UncertainItemState {
+  sectionLabel: string;
+  confidence: string;
+  summary: string;
+}
+
 const initialExplanationState: Record<SectionKey, ExplanationState> = {
   medications: { text: null, loading: false, error: null },
   redFlags: { text: null, loading: false, error: null },
@@ -67,11 +73,17 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
 
   const [translating, setTranslating] = useState(false);
   const [translated, setTranslated] = useState<TranslationPayload | null>(null);
+  const [uncertainItem, setUncertainItem] = useState<UncertainItemState | null>(null);
+  const [clarificationDraft, setClarificationDraft] = useState("");
+  const [sendingClarification, setSendingClarification] = useState(false);
+  const [clarificationError, setClarificationError] = useState<string | null>(null);
+  const [clarificationSuccess, setClarificationSuccess] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editData, setEditData] = useState<CarePlanData>(plan);
   const canEdit = currentUserId && currentUserId === plan.coordinatorId;
+  const canRequestClarification = Boolean(currentUserId) && currentUserId !== plan.coordinatorId && Boolean(plan.coordinatorId);
 
   useEffect(() => {
     setExplanations(initialExplanationState);
@@ -143,6 +155,25 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
     navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const buildClarificationDraft = (item: UncertainItemState) => {
+    return `${item.sectionLabel}: ${item.summary}\n${t("clarificationConfidenceNote")} ${getConfidenceLabel(item.confidence, t)}.`;
+  };
+
+  const openUncertaintyModal = (item: UncertainItemState) => {
+    setUncertainItem(item);
+    setClarificationDraft(buildClarificationDraft(item));
+    setClarificationError(null);
+    setClarificationSuccess(false);
+  };
+
+  const closeUncertaintyModal = () => {
+    setUncertainItem(null);
+    setClarificationDraft("");
+    setClarificationError(null);
+    setClarificationSuccess(false);
+    setSendingClarification(false);
   };
 
   const handleSave = async () => {
@@ -218,7 +249,6 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
         body: JSON.stringify({ planId: plan._id, language, section }),
       });
       const payload = (await response.json()) as ExplanationResponse;
-
       if (!response.ok || !payload.explanation) {
         throw new Error(payload.error || t("explanationError"));
       }
@@ -236,6 +266,41 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
           error: error instanceof Error ? error.message : t("explanationError"),
         },
       }));
+    }
+  };
+
+  const handleSendClarification = async () => {
+    if (!uncertainItem || !clarificationDraft.trim()) {
+      return;
+    }
+
+    setSendingClarification(true);
+    setClarificationError(null);
+
+    try {
+      const response = await fetch(`/api/plan/${plan._id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: clarificationDraft.trim(),
+          translateToEnglish: language !== "en",
+          localizedContent: language !== "en" ? clarificationDraft.trim() : undefined,
+          sourceLanguage: language,
+          viewerLanguage: language,
+        }),
+      });
+
+      const payload = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.error || t("failedToSendClarification"));
+      }
+
+      setClarificationSuccess(true);
+    } catch (error: unknown) {
+      setClarificationError(error instanceof Error ? error.message : t("failedToSendClarification"));
+    } finally {
+      setSendingClarification(false);
     }
   };
 
@@ -426,8 +491,23 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                       <span className="font-bold text-slate-900 text-base">{medication.name}</span>
                       <span className="text-slate-600 font-medium ml-2 inline-block">{medication.dosage} · {medication.frequency}</span>
                     </div>
-                    <div className="shrink-0 mt-0.5">
+                    <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
                       <ConfidenceBadge level={medication.confidence} t={t} />
+                      {canRequestClarification && medication.confidence !== "High" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openUncertaintyModal({
+                              sectionLabel: t("medications"),
+                              confidence: medication.confidence,
+                              summary: `${medication.name} ${medication.dosage} ${medication.frequency}`.trim(),
+                            })
+                          }
+                          className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                          {t("reviewThisItem")}
+                        </button>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -486,8 +566,23 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                   {flags.map((flag, index) => (
                     <li key={index} className="flex gap-4 items-start justify-between text-sm">
                       <span className="font-semibold text-slate-900 block text-base flex-1 wrap-break-word">{flag.issue}</span>
-                      <div className="shrink-0 mt-0.5">
+                      <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
                         <ConfidenceBadge level={flag.confidence} t={t} />
+                        {canRequestClarification && flag.confidence !== "High" && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openUncertaintyModal({
+                                sectionLabel: t("redFlags"),
+                                confidence: flag.confidence,
+                                summary: flag.issue,
+                              })
+                            }
+                            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            {t("reviewThisItem")}
+                          </button>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -547,8 +642,23 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                   {instructions.map((instruction, index) => (
                     <li key={index} className="flex gap-4 items-start justify-between text-sm">
                       <span className="font-semibold text-slate-900 block text-base flex-1 wrap-break-word">{instruction.instruction}</span>
-                      <div className="shrink-0 mt-0.5">
+                      <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
                         <ConfidenceBadge level={instruction.confidence} t={t} />
+                        {canRequestClarification && instruction.confidence !== "High" && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openUncertaintyModal({
+                                sectionLabel: t("careInstructions"),
+                                confidence: instruction.confidence,
+                                summary: instruction.instruction,
+                              })
+                            }
+                            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            {t("reviewThisItem")}
+                          </button>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -615,6 +725,24 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
             </div>
           </div>
         </div>
+      )}
+
+      {uncertainItem && (
+        <UncertaintyResolutionModal
+          item={uncertainItem}
+          draft={clarificationDraft}
+          canMessageCoordinator={canRequestClarification}
+          sending={sendingClarification}
+          error={clarificationError}
+          success={clarificationSuccess}
+          onDraftChange={(value) => {
+            setClarificationDraft(value);
+            setClarificationSuccess(false);
+          }}
+          onClose={closeUncertaintyModal}
+          onSend={handleSendClarification}
+          t={t}
+        />
       )}
     </div>
   );
@@ -740,5 +868,116 @@ function ConfidenceBadge({ level, t }: { level: string; t: (key: string) => stri
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full border whitespace-nowrap ${styles[level] || styles.High}`}>
       {t(keys[level] || "highConfidence")}
     </span>
+  );
+}
+
+function getConfidenceLabel(level: string, t: (key: string) => string) {
+  const keys: Record<string, string> = {
+    High: "highConfidence",
+    Medium: "mediumConfidence",
+    Low: "lowConfidence",
+  };
+
+  return t(keys[level] || "highConfidence");
+}
+
+function UncertaintyResolutionModal({
+  item,
+  draft,
+  canMessageCoordinator,
+  sending,
+  error,
+  success,
+  onDraftChange,
+  onClose,
+  onSend,
+  t,
+}: {
+  item: UncertainItemState;
+  draft: string;
+  canMessageCoordinator: boolean;
+  sending: boolean;
+  error: string | null;
+  success: boolean;
+  onDraftChange: (value: string) => void;
+  onClose: () => void;
+  onSend: () => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+              <AlertTriangle size={14} />
+              {t("confidenceNeedsReview")}
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900">{t("uncertaintyModalTitle")}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{t("uncertaintyModalBody")}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-5 px-6 py-5">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+              <span>{t("uncertaintyItemLabel")}</span>
+              <ConfidenceBadge level={item.confidence} t={t} />
+            </div>
+            <p className="text-sm leading-6 text-slate-700">
+              <span className="font-semibold text-slate-900">{item.sectionLabel}:</span> {item.summary}
+            </p>
+          </div>
+
+            <p className="text-xs text-slate-500">{t("translateToEnglishHint")}</p>
+          {canMessageCoordinator ? (
+            <>
+              <label className="block text-sm font-medium text-slate-700">{t("clarificationMessageLabel")}</label>
+              <textarea
+                value={draft}
+                onChange={(event) => onDraftChange(event.target.value)}
+                rows={5}
+                placeholder={t("clarificationPlaceholder")}
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              {success && <p className="text-sm text-green-600">{t("clarificationSent")}</p>}
+            </>
+          ) : (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              {t("noCoordinatorAvailable")}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            {t("cancel")}
+          </button>
+          {canMessageCoordinator && (
+            <button
+              type="button"
+              onClick={onSend}
+              disabled={sending || !draft.trim()}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            >
+              {sending ? <Loader2 size={16} className="animate-spin" /> : <MessageSquare size={16} />}
+              {sending ? t("sendingMessage") : t("askCoordinator")}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

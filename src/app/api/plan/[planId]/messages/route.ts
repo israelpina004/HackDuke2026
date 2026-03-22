@@ -139,7 +139,7 @@ function serializeMessage(
   viewerLanguage: string
 ) {
   const translatedContent =
-    viewerLanguage !== "en" && message.senderId !== currentUserId
+    viewerLanguage !== "en"
       ? getCachedTranslation(message, viewerLanguage)
       : null;
 
@@ -220,7 +220,7 @@ export async function GET(
 
     if (viewerLanguage !== "en") {
       const missingTranslations = messages
-        .filter((message) => message.senderId !== userId && !getCachedTranslation(message, viewerLanguage))
+        .filter((message) => !getCachedTranslation(message, viewerLanguage))
         .map((message) => ({ id: message._id.toString(), content: message.content }));
 
       if (missingTranslations.length > 0) {
@@ -302,6 +302,9 @@ export async function POST(
     const content = typeof body.content === "string" ? body.content.trim() : "";
     const translateToEnglish = body.translateToEnglish === true;
     const requestedRecipientId = typeof body.recipientId === "string" ? body.recipientId : undefined;
+    const localizedContent = typeof body.localizedContent === "string" ? body.localizedContent.trim() : "";
+    const sourceLanguage = typeof body.sourceLanguage === "string" ? body.sourceLanguage.trim() : "";
+    const viewerLanguage = typeof body.viewerLanguage === "string" ? body.viewerLanguage.trim() : "en";
 
     if (!content) {
       return NextResponse.json({ error: "Message content is required." }, { status: 400 });
@@ -347,6 +350,10 @@ export async function POST(
           senderId: userId,
           receiverId: recipientId,
           content: outboundContent,
+          translations:
+            translateToEnglish && sourceLanguage !== "en" && localizedContent
+              ? { [sourceLanguage]: localizedContent }
+              : {},
         }),
         User.find({ auth0Id: { $in: [userId, recipientId] } }).select("auth0Id name").lean() as Promise<LeanUser[]>,
       ]),
@@ -355,7 +362,7 @@ export async function POST(
     const userMap = new Map(users.map((user) => [user.auth0Id, user.name]));
 
     return NextResponse.json({
-      message: serializeMessage(createdMessage as LeanMessage, userMap, userId, "en"),
+      message: serializeMessage(createdMessage as LeanMessage, userMap, userId, viewerLanguage),
     });
   } catch (error: unknown) {
     console.error("Error sending message:", error);
