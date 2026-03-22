@@ -15,19 +15,23 @@ export interface CarePlanData {
   patientName: string;
   inviteCode?: string;
   caregiverIds?: string[];
+  coordinatorId: string;
   createdByRole: string;
   originalLanguage?: string;
   contactInfo?: ContactInfo;
+  notes?: string;
   medications: { name: string; dosage: string; frequency: string; confidence: string }[];
   redFlags: { issue: string; confidence: string }[];
   careInstructions: { instruction: string; confidence: string }[];
   documents: { mimeType: string }[];
 }
 
-export default function CarePlanCard({ plan }: { plan: CarePlanData }) {
+export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanData; currentUserId?: string }) {
   const { t, language } = useLanguage();
   const [showDocs, setShowDocs] = useState(false);
   const [copied, setCopied] = useState(false);
+  
+  // Translation State
   const [translating, setTranslating] = useState(false);
   const [translated, setTranslated] = useState<{
     medications: CarePlanData["medications"];
@@ -35,8 +39,18 @@ export default function CarePlanCard({ plan }: { plan: CarePlanData }) {
     careInstructions: CarePlanData["careInstructions"];
   } | null>(null);
 
-  // Auto-translate when language changes
+  // Edit State
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editData, setEditData] = useState<CarePlanData>(plan);
+  const canEdit = currentUserId && (currentUserId === plan.coordinatorId);
+
+  // Auto-translate only if we are NOT in edit mode (we edit the raw original language!)
   useEffect(() => {
+    if (isEditing) {
+      setTranslated(null);
+      return;
+    }
     const origLang = plan.originalLanguage || "en";
     if (language === origLang) {
       setTranslated(null);
@@ -75,13 +89,40 @@ export default function CarePlanCard({ plan }: { plan: CarePlanData }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/plan/${plan._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData),
+      });
+      if (res.ok) {
+        window.location.reload(); // Quick refresh to re-render server component with new data
+      } else {
+        alert("Failed to save plan. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving plan.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold text-slate-800">
-            {t("patient")}: {plan.patientName}
+            {t("patient")}: {isEditing ? (
+              <input 
+                value={editData.patientName} 
+                onChange={e => setEditData({...editData, patientName: e.target.value})}
+                className="ml-2 appearance-none border-2 border-slate-300 rounded px-2 py-1 text-base font-semibold w-56 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+              />
+            ) : plan.patientName}
           </h2>
           {plan.createdByRole === "Caregiver" && (
             <span className="text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
@@ -90,14 +131,41 @@ export default function CarePlanCard({ plan }: { plan: CarePlanData }) {
           )}
         </div>
         
-        {plan.documents?.length > 0 && (
-          <button
-            onClick={() => setShowDocs(true)}
-            className="text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <FileText size={16} /> {t("viewDocuments")} ({plan.documents.length})
-          </button>
-        )}
+        <div className="flex gap-2">
+          {plan.documents?.length > 0 && !isEditing && (
+            <button
+              onClick={() => setShowDocs(true)}
+              className="text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <FileText size={16} /> {t("viewDocuments")} ({plan.documents.length})
+            </button>
+          )}
+          {canEdit && !isEditing && (
+            <button
+              onClick={() => { setEditData(plan); setIsEditing(true); }}
+              className="text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-1.5 rounded-lg transition-colors"
+            >
+              {t("editPlan") || "Edit Plan"}
+            </button>
+          )}
+          {isEditing && (
+            <>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-4 py-1.5 rounded-lg transition-colors"
+              >
+                {t("cancel") || "Cancel"}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {saving ? "..." : (t("savePlan") || "Save Plan")}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Invite Code (for Coordinators) */}
@@ -130,21 +198,53 @@ export default function CarePlanCard({ plan }: { plan: CarePlanData }) {
 
       {/* Medications */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500 p-5">
-        <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-          <Pill size={18} className="text-blue-500" /> {t("medications")}
-          {translating && <Loader2 size={14} className="animate-spin text-slate-400" />}
-        </h3>
-        {meds?.length === 0 ? (
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+            <Pill size={18} className="text-blue-500" /> {t("medications")}
+            {translating && <Loader2 size={14} className="animate-spin text-slate-400" />}
+          </h3>
+          {isEditing && (
+            <button 
+              onClick={() => setEditData({...editData, medications: [...editData.medications, { name: "New Med", dosage: "", frequency: "", confidence: "High" }]})}
+              className="text-xs text-blue-600 font-medium hover:underline"
+            >
+              + Add
+            </button>
+          )}
+        </div>
+        
+        {isEditing ? (
+          <ul className="space-y-3">
+            {editData.medications.map((med, i) => (
+              <li key={i} className="flex flex-wrap gap-2 items-start border-b border-slate-100 pb-3">
+                <input className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium flex-1 min-w-[120px] text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400" value={med.name} onChange={e => {
+                  const m = [...editData.medications]; m[i].name = e.target.value; setEditData({...editData, medications: m});
+                }} placeholder="Name" />
+                <input className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium w-24 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400" value={med.dosage} onChange={e => {
+                  const m = [...editData.medications]; m[i].dosage = e.target.value; setEditData({...editData, medications: m});
+                }} placeholder="Dosage" />
+                <input className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium w-32 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400" value={med.frequency} onChange={e => {
+                  const m = [...editData.medications]; m[i].frequency = e.target.value; setEditData({...editData, medications: m});
+                }} placeholder="Frequency" />
+                <button onClick={() => {
+                  const m = [...editData.medications]; m.splice(i, 1); setEditData({...editData, medications: m});
+                }} className="text-red-500 hover:text-red-700 p-1"><X size={16}/></button>
+              </li>
+            ))}
+          </ul>
+        ) : meds?.length === 0 ? (
           <p className="text-sm text-slate-400">—</p>
         ) : (
           <ul className="space-y-2">
             {meds?.map((med, i) => (
-              <li key={i} className="flex items-start justify-between text-sm">
-                <div>
-                  <span className="font-medium text-slate-700">{med.name}</span>
-                  <span className="text-slate-400 ml-2">{med.dosage} · {med.frequency}</span>
+              <li key={i} className="flex gap-4 items-start justify-between text-sm">
+                <div className="flex-1 break-words">
+                  <span className="font-bold text-slate-900 text-base">{med.name}</span>
+                  <span className="text-slate-600 font-medium ml-2 inline-block">{med.dosage} · {med.frequency}</span>
                 </div>
-                <ConfidenceBadge level={med.confidence} t={t} />
+                <div className="shrink-0 mt-0.5">
+                  <ConfidenceBadge level={med.confidence} t={t} />
+                </div>
               </li>
             ))}
           </ul>
@@ -152,36 +252,111 @@ export default function CarePlanCard({ plan }: { plan: CarePlanData }) {
       </div>
 
       {/* Red Flags */}
-      {flags?.length > 0 && (
+      {(flags?.length > 0 || isEditing) && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-red-500 p-5">
-          <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-            <AlertTriangle size={18} className="text-red-500" /> {t("redFlags")}
-          </h3>
-          <ul className="space-y-2">
-            {flags.map((flag, i) => (
-              <li key={i} className="flex items-start justify-between text-sm">
-                <span className="text-slate-700">{flag.issue}</span>
-                <ConfidenceBadge level={flag.confidence} t={t} />
-              </li>
-            ))}
-          </ul>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+              <AlertTriangle size={18} className="text-red-500" /> {t("redFlags")}
+            </h3>
+            {isEditing && (
+              <button 
+                onClick={() => setEditData({...editData, redFlags: [...editData.redFlags, { issue: "New red flag", confidence: "High" }]})}
+                className="text-xs text-red-600 font-medium hover:underline"
+              >
+                + Add
+              </button>
+            )}
+          </div>
+          
+          {isEditing ? (
+            <ul className="space-y-3">
+              {editData.redFlags.map((flag, i) => (
+                <li key={i} className="flex gap-2 items-start">
+                  <input className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium flex-1 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400" value={flag.issue} onChange={e => {
+                    const f = [...editData.redFlags]; f[i].issue = e.target.value; setEditData({...editData, redFlags: f});
+                  }} />
+                  <button onClick={() => {
+                    const f = [...editData.redFlags]; f.splice(i, 1); setEditData({...editData, redFlags: f});
+                  }} className="text-red-500 hover:text-red-700 p-1"><X size={16}/></button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul className="space-y-2">
+              {flags.map((flag, i) => (
+                <li key={i} className="flex gap-4 items-start justify-between text-sm">
+                  <span className="font-semibold text-slate-900 block text-base flex-1 break-words">{flag.issue}</span>
+                  <div className="shrink-0 mt-0.5">
+                    <ConfidenceBadge level={flag.confidence} t={t} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
       {/* Care Instructions */}
-      {instructions?.length > 0 && (
+      {(instructions?.length > 0 || isEditing) && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-green-500 p-5">
-          <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-            <Heart size={18} className="text-green-500" /> {t("careInstructions")}
-          </h3>
-          <ul className="space-y-2">
-            {instructions.map((ci, i) => (
-              <li key={i} className="flex items-start justify-between text-sm">
-                <span className="text-slate-700">{ci.instruction}</span>
-                <ConfidenceBadge level={ci.confidence} t={t} />
-              </li>
-            ))}
-          </ul>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+              <Heart size={18} className="text-green-500" /> {t("careInstructions")}
+            </h3>
+            {isEditing && (
+              <button 
+                onClick={() => setEditData({...editData, careInstructions: [...editData.careInstructions, { instruction: "New instruction", confidence: "High" }]})}
+                className="text-xs text-green-600 font-medium hover:underline"
+              >
+                + Add
+              </button>
+            )}
+          </div>
+          
+          {isEditing ? (
+            <ul className="space-y-3">
+              {editData.careInstructions.map((ci, i) => (
+                <li key={i} className="flex gap-2 items-start">
+                  <textarea className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium flex-1 min-h-[60px] text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400" value={ci.instruction} onChange={e => {
+                    const c = [...editData.careInstructions]; c[i].instruction = e.target.value; setEditData({...editData, careInstructions: c});
+                  }} />
+                  <button onClick={() => {
+                    const c = [...editData.careInstructions]; c.splice(i, 1); setEditData({...editData, careInstructions: c});
+                  }} className="text-red-500 hover:text-red-700 p-1 mt-1"><X size={16}/></button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul className="space-y-2">
+              {instructions.map((ci, i) => (
+                <li key={i} className="flex gap-4 items-start justify-between text-sm">
+                  <span className="font-semibold text-slate-900 block text-base flex-1 break-words">{ci.instruction}</span>
+                  <div className="shrink-0 mt-0.5">
+                    <ConfidenceBadge level={ci.confidence} t={t} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* Notes Section */}
+      {(plan.notes || isEditing) && (
+        <div className="bg-amber-50 rounded-2xl shadow-sm border border-amber-200 p-5 mb-4">
+          <h3 className="font-semibold text-amber-900 mb-3">{t("notesTitle") || "Coordinator Notes"}</h3>
+          {isEditing ? (
+            <textarea
+              className="appearance-none w-full bg-white border-2 border-amber-300 rounded-xl p-3 text-sm font-medium focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 min-h-[120px] text-slate-900 shadow-sm placeholder:text-amber-700/50"
+              value={editData.notes || ""}
+              onChange={e => setEditData({ ...editData, notes: e.target.value })}
+              placeholder={t("notesPlaceholder") || "Add any specific manual notes for the caregiver here..."}
+            />
+          ) : (
+            <div className="text-sm text-amber-800 whitespace-pre-wrap">
+              {plan.notes}
+            </div>
+          )}
         </div>
       )}
 

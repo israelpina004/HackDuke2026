@@ -2,8 +2,9 @@
 
 import { useState, useRef } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
-import { Upload, FileText } from "lucide-react";
-import CarePlanCard, { CarePlanData } from "./CarePlanCard";
+import { Upload, FileText, Copy, Check, Users, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { CarePlanData } from "./CarePlanCard";
 
 export default function CoordinatorDashboard({ plans: initialPlans }: { plans: CarePlanData[] }) {
   const { t, language } = useLanguage();
@@ -49,6 +50,12 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
     }
   };
 
+  const copyCode = (code: string, planId: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedId(planId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Upload Button */}
@@ -82,10 +89,39 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
           <p className="text-slate-500">{t("noPlansCoord")}</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {plans.map((plan) => (
-            <div key={plan._id} className="pb-10 border-b border-slate-200 last:border-0 last:pb-0">
-              <CarePlanCard plan={plan} />
+            <div key={plan._id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+              <div className="p-5 flex-1 flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 tracking-tight">{plan.patientName}</h3>
+                    <p className="text-sm text-slate-500 flex items-center gap-1 mt-1">
+                      <Users size={14} /> {plan.caregiverIds?.length || 0} Caregivers connected
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 mt-auto">
+                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{t("inviteCodeLabel")}:</span>
+                  <code className="font-mono font-bold text-blue-600 tracking-widest text-sm flex-1">{plan.inviteCode}</code>
+                  <button
+                    onClick={(e) => { e.preventDefault(); plan.inviteCode && copyCode(plan.inviteCode, plan._id); }}
+                    className="text-slate-400 hover:text-blue-600 transition-colors"
+                  >
+                    {copiedId === plan._id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="bg-slate-50 border-t border-slate-100 p-3">
+                <Link 
+                  href={`/dashboard/plan/${plan._id}`}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
+                >
+                  {t("viewPlan") || "View Full Plan"} <ArrowRight size={16} />
+                </Link>
+              </div>
             </div>
           ))}
         </div>

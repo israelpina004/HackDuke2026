@@ -25,6 +25,7 @@ export default async function DashboardPage() {
       patientName: p.patientName,
       inviteCode: p.inviteCode,
       caregiverIds: p.caregiverIds || [],
+      coordinatorId: p.coordinatorId || "",
       createdByRole: p.createdByRole || "Coordinator",
       originalLanguage: p.originalLanguage || "en",
       contactInfo: p.contactInfo || {},
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
   const serialized = plans.map((p: any) => ({
     _id: p._id.toString(),
     patientName: p.patientName,
+    coordinatorId: p.coordinatorId || "",
     createdByRole: p.createdByRole || "Coordinator",
     originalLanguage: p.originalLanguage || "en",
     contactInfo: p.contactInfo || {},

@@ -72,7 +72,7 @@ export default function LinkCaregiverPage() {
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                 placeholder={t('inviteCodePlaceholder')}
-                className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-[0.3em] font-medium text-xl text-center placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal transition-all duration-200"
+                className="appearance-none w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-[0.3em] font-medium text-xl text-center text-slate-900 placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal transition-all duration-200"
                 required
               />
             </div>

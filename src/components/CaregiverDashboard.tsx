@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
 import { ClipboardList, ArrowRight, Upload } from "lucide-react";
 import Link from "next/link";
-import CarePlanCard, { CarePlanData } from "./CarePlanCard";
+import { CarePlanData } from "./CarePlanCard";
 
 export default function CaregiverDashboard({ plans: initialPlans }: { plans: CarePlanData[] }) {
   const { t, language } = useLanguage();
@@ -35,6 +35,7 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
       const newPlan: CarePlanData = {
         _id: data.carePlan._id,
         patientName: data.carePlan.patientName,
+        coordinatorId: data.carePlan.coordinatorId || "",
         createdByRole: "Caregiver",
         contactInfo: data.carePlan.contactInfo,
         medications: data.carePlan.medications || [],
@@ -96,9 +97,36 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
       )}
 
       {/* Plans */}
-      {plans.map((plan) => (
-        <CarePlanCard key={plan._id} plan={plan} />
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {plans.map((plan) => (
+          <div key={plan._id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+            <div className="p-5 flex-1 flex flex-col gap-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 tracking-tight">{plan.patientName}</h3>
+                  {plan.createdByRole === "Caregiver" ? (
+                    <span className="text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full mt-2 inline-block">
+                      {t("selfUploaded")}
+                    </span>
+                  ) : (
+                    <span className="text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full mt-2 inline-block">
+                      {t("linkedPlan") || "Linked Plan"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-50 border-t border-slate-100 p-3">
+              <Link 
+                href={`/dashboard/plan/${plan._id}`}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
+              >
+                {t("viewPlan") || "View Full Plan"} <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

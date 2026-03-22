@@ -16,7 +16,7 @@ A multimodal AI platform that transforms static medical PDFs into a **living, sh
 | **Frontend** | Next.js (React) + Tailwind CSS | Standard High-Perf Web |
 | **Deployment** | Cloudflare Pages + Workers | **Best AI App (Cloudflare)** |
 | **Auth** | Auth0 | **Best Use of Auth0** |
-| **AI (Logic/OCR)** | Google Gemini 1.5 Flash | **Best Use of Gemini API** |
+| **AI (Logic/OCR)** | Google Gemini 2.5 Flash | **Best Use of Gemini API** |
 | **AI (Voice)** | ElevenLabs API | **Best Use of ElevenLabs** |
 | **Database** | MongoDB Atlas | **Best Use of MongoDB Atlas** |
 | **Sharing** | Web Share API | Interoperability/UX |

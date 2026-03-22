@@ -43,6 +43,7 @@ export interface ICarePlan extends Document {
   calendarEvents: ICalendarEvent[];
   documents: { data: string; mimeType: string }[];
   contactInfo?: IContactInfo;
+  notes?: string;
   translations: Map<string, {
     medications: IMedication[];
     redFlags: IRedFlag[];
@@ -96,6 +97,7 @@ const CarePlanSchema = new Schema<ICarePlan>(
       phone: { type: String },
       facility: { type: String },
     },
+    notes: { type: String, default: "" },
     originalLanguage: { type: String, default: 'en' },
     translations: { type: Map, of: Schema.Types.Mixed, default: {} },
   },
