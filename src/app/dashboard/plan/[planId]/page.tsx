@@ -1,9 +1,8 @@
 import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
-import dbConnect from "@/lib/mongoose";
+import dbConnect, { withTimeout } from "@/lib/mongoose";
 import CarePlan from "@/models/CarePlan";
 import CarePlanCard from "@/components/CarePlanCard";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 interface PlanMedication {
@@ -37,18 +36,38 @@ export default async function PlanPage({
 
   const { planId } = await params;
 
-  await dbConnect();
-  
-  // Find the specific plan, verifying the user is authorized to see it
-  const plan = await CarePlan.findOne({
-    _id: planId,
-    $or: [
-      { coordinatorId: session.user.sub },
-      { caregiverIds: session.user.sub },
-    ],
-  })
-    .select("-documents.data")
-    .lean();
+  let plan;
+  try {
+    await withTimeout(dbConnect(), 8000);
+    
+    // Find the specific plan, verifying the user is authorized to see it
+    plan = await withTimeout(
+      CarePlan.findOne({
+        _id: planId,
+        $or: [
+          { coordinatorId: session.user.sub },
+          { caregiverIds: session.user.sub },
+        ],
+      })
+        .select("-documents.data -audioBriefings -explanationCache")
+        .lean(),
+      5000
+    );
+  } catch (e) {
+    console.error('[PlanPage] DB error:', (e as Error).message);
+    return (
+      <div className="w-full mx-auto space-y-6 p-8">
+        <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+          <ArrowLeft size={16} /> Back to Dashboard
+        </a>
+        <div className="bg-white p-8 rounded-xl shadow-lg text-center">
+          <h1 className="text-xl font-bold text-slate-800 mb-2">Connection Error</h1>
+          <p className="text-slate-500 mb-4">Unable to load this care plan. Please try again.</p>
+          <a href={`/dashboard/plan/${planId}`} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Retry</a>
+        </div>
+      </div>
+    );
+  }
 
   if (!plan) {
     redirect("/dashboard");
@@ -85,12 +104,12 @@ export default async function PlanPage({
 
   return (
     <div className="w-full mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Link 
+      <a 
         href="/dashboard"
         className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft size={16} /> Back to Dashboard
-      </Link>
+      </a>
       
       <CarePlanCard plan={serialized} currentUserId={session.user.sub} />
     </div>

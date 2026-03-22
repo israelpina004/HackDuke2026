@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { KeyRound, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/translations/LanguageContext";
 import AppHeader from "@/components/AppHeader";
@@ -11,7 +10,6 @@ export default function LinkCaregiverPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const router = useRouter();
   const { t } = useLanguage();
 
   const handleLink = async (e: React.FormEvent) => {
@@ -34,7 +32,7 @@ export default function LinkCaregiverPage() {
 
       setSuccess(t('successLink'));
       setTimeout(() => {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }, 1500);
     } catch (err: any) {
       setError(err.message);

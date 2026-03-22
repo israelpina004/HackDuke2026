@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
 import { Upload, FileText, Copy, Check, Users, ArrowRight } from "lucide-react";
-import Link from "next/link";
 import { CarePlanData } from "./CarePlanCard";
 
 export default function CoordinatorDashboard({ plans: initialPlans }: { plans: CarePlanData[] }) {
@@ -115,12 +114,12 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
               </div>
               
               <div className="bg-slate-50 border-t border-slate-100 p-3">
-                <Link 
+                <a 
                   href={`/dashboard/plan/${plan._id}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
                 >
                   {t("viewPlan") || "View Full Plan"} <ArrowRight size={16} />
-                </Link>
+                </a>
               </div>
             </div>
           ))}

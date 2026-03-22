@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## HackDuke 2026
 
-## Getting Started
+Next.js 16 App Router application deployed with OpenNext to Cloudflare Workers.
 
-First, run the development server:
+## Local Development
+
+1. Copy `.env.example` to `.env.local`.
+2. Set Auth0, MongoDB, Gemini, and ElevenLabs credentials.
+3. Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Auth0 Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This app uses `@auth0/nextjs-auth0` v4.
 
-## Learn More
+- Use `APP_BASE_URL`, not `AUTH0_BASE_URL`.
+- For local development, set `APP_BASE_URL=http://localhost:3000`.
+- For production, set `APP_BASE_URL` to the exact deployed origin, for example `https://your-app.example.com`.
+- Add `/auth/callback` for that origin to Auth0 Allowed Callback URLs.
+- Add the origin itself to Auth0 Allowed Logout URLs.
 
-To learn more about Next.js, take a look at the following resources:
+Although Next.js 16 introduces `proxy.ts`, this project stays on `src/middleware.ts` because the current OpenNext Cloudflare adapter does not support Node middleware/proxy yet.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run deploy
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before deploying, make sure the production environment provides the correct Auth0 variables, especially `APP_BASE_URL`.

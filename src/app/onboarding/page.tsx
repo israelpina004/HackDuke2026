@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { UserCircle, ArrowRight, Beaker, HeartHandshake, Globe } from "lucide-react";
 import { LANGUAGES } from "@/translations";
 import { useLanguage } from "@/translations/LanguageContext";
@@ -16,7 +15,6 @@ export default function OnboardingPage() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +33,11 @@ export default function OnboardingPage() {
         throw new Error(data.error || t('failedSave'));
       }
 
-      // Route based on role selection
+      // Full-document navigation into auth-protected routes
       if (role === "Coordinator") {
-        router.push("/dashboard"); // Later we can route coordinators to their own dashboard
+        window.location.href = "/dashboard";
       } else {
-        router.push("/link"); // Caregivers should join a care plan next
+        window.location.href = "/link";
       }
     } catch (err: any) {
       setError(err.message);

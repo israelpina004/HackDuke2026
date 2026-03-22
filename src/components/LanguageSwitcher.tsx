@@ -2,17 +2,15 @@
 
 import { LANGUAGES } from "@/translations";
 import { useLanguage } from "@/translations/LanguageContext";
-import { useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
 
 export default function LanguageSwitcher() {
   const { language } = useLanguage();
-  const router = useRouter();
 
   const handleLanguageChange = (newLanguage: string) => {
     // Set a cookie that lasts for 1 year
     document.cookie = `NEXT_LOCALE=${newLanguage}; path=/; max-age=31536000`;
-    router.refresh(); // Tells Next.js to reconstruct the Server Components with the new cookie
+    window.location.reload(); // Full reload to reconstruct Server Components with new cookie
   };
 
   return (

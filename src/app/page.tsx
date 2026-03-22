@@ -4,8 +4,10 @@ import { translations, LanguageCode } from "@/translations";
 import AppHeader from "@/components/AppHeader";
 
 export default async function Home() {
+  console.log('[Home] rendering...');
   const session = await auth0.getSession();
   const user = session?.user;
+  console.log('[Home] session:', !!session, 'user:', !!user);
   
   const cookieStore = await cookies();
   const locale = (cookieStore.get("NEXT_LOCALE")?.value as LanguageCode) || "en";
