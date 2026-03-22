@@ -25,7 +25,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <DashboardHeader userName={session.user.name || session.user.email} />
+      <DashboardHeader userName={session.user.name || session.user.email || "Caregiver"} />
       <main className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
         {children}
       </main>
