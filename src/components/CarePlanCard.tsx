@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
-import { AlertTriangle, Building2, Check, Copy, FileText, Heart, Image as ImageIcon, Loader2, Phone, Pill, Sparkles, Users, Volume2, X } from "lucide-react";
+import { AlertTriangle, Building2, Check, Copy, FileText, Heart, Image as ImageIcon, Loader2, MessageSquare, Phone, Pill, Sparkles, Users, Volume2, X } from "lucide-react";
 
 interface ContactInfo {
   name?: string;
@@ -260,6 +260,15 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
         </div>
 
         <div className="flex gap-2">
+          {!isEditing && (
+            <a
+              href={`/dashboard/plan/${plan._id}/messages`}
+              className="text-sm font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <MessageSquare size={16} />
+              {t("openMessages")}
+            </a>
+          )}
           {plan.documents?.length > 0 && !isEditing && (
             <button
               onClick={() => setShowDocs(true)}

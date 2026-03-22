@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import dbConnect, { withTimeout } from "@/lib/mongoose";
 import CarePlan from "@/models/CarePlan";
 import CarePlanCard from "@/components/CarePlanCard";
+import PlanTabs from "@/components/PlanTabs";
 import { ArrowLeft } from "lucide-react";
 
 interface PlanMedication {
@@ -110,6 +111,8 @@ export default async function PlanPage({
       >
         <ArrowLeft size={16} /> Back to Dashboard
       </a>
+
+      <PlanTabs planId={planId} activeTab="overview" />
       
       <CarePlanCard plan={serialized} currentUserId={session.user.sub} />
     </div>
