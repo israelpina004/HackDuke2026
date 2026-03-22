@@ -1,35 +1,59 @@
-"use client";
+import { auth0 } from "@/lib/auth0";
+import dbConnect from "@/lib/mongoose";
+import User from "@/models/User";
+import CarePlan from "@/models/CarePlan";
+import CoordinatorDashboard from "@/components/CoordinatorDashboard";
+import CaregiverDashboard from "@/components/CaregiverDashboard";
 
-import { useLanguage } from "@/translations/LanguageContext";
+export default async function DashboardPage() {
+  const session = await auth0.getSession();
+  if (!session?.user) return null;
 
-export default function DashboardPage() {
-  const { t } = useLanguage();
+  await dbConnect();
+  const dbUser = await User.findOne({ auth0Id: session.user.sub });
+  if (!dbUser) return null;
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">{t('welcome')}</h1>
-        <p className="text-slate-500">
-          This is a placeholder for the Dashboard view. Here we will display the Care Plan details, medication schedules, and the ElevenLabs daily briefing player.
-        </p>
-      </div>
+  if (dbUser.role === "Coordinator") {
+    // Fetch all plans this coordinator owns
+    const plans = await CarePlan.find({ coordinatorId: session.user.sub })
+      .sort({ createdAt: -1 })
+      .lean();
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500">
-          <h2 className="font-semibold text-slate-800 mb-1">{t('medications')}</h2>
-          <p className="text-sm text-slate-500">View upcoming scheduled doses.</p>
-        </div>
-        
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-red-500">
-          <h2 className="font-semibold text-slate-800 mb-1">{t('redFlags')}</h2>
-          <p className="text-sm text-slate-500">Critical symptoms to monitor.</p>
-        </div>
+    const serialized = plans.map((p: any) => ({
+      _id: p._id.toString(),
+      patientName: p.patientName,
+      inviteCode: p.inviteCode,
+      caregiverIds: p.caregiverIds,
+      medications: p.medications.map((m: any) => ({ name: m.name })),
+      createdAt: p.createdAt?.toISOString?.() || "",
+    }));
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-green-500">
-          <h2 className="font-semibold text-slate-800 mb-1">{t('audioBriefing')}</h2>
-          <p className="text-sm text-slate-500">Listen to today's medical summary.</p>
-        </div>
-      </div>
-    </div>
-  );
+    return <CoordinatorDashboard plans={serialized} />;
+  }
+
+  // Caregiver: fetch plans they are linked to
+  const plans = await CarePlan.find({ caregiverIds: session.user.sub })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const serialized = plans.map((p: any) => ({
+    _id: p._id.toString(),
+    patientName: p.patientName,
+    medications: p.medications.map((m: any) => ({
+      name: m.name,
+      dosage: m.dosage,
+      frequency: m.frequency,
+      confidence: m.confidence,
+    })),
+    redFlags: p.redFlags.map((r: any) => ({
+      issue: r.issue,
+      confidence: r.confidence,
+    })),
+    careInstructions: (p.careInstructions || []).map((c: any) => ({
+      instruction: c.instruction,
+      confidence: c.confidence,
+    })),
+  }));
+
+  return <CaregiverDashboard plans={serialized} />;
 }

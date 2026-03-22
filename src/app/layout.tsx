@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Care Handoff Copilot",
+  title: "Handoff",
   description: "Bridging the gap between the hospital and the home.",
 };
 

@@ -50,7 +50,18 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     successLink: "Successfully linked! Initializing dashboard...",
     verifying: "Verifying...",
     connectBtn: "Connect",
-    requiresAuth: "Requires authorization from the primary care team."
+    requiresAuth: "Requires authorization from the primary care team.",
+    createPlan: "Create New Care Plan",
+    uploadPdf: "Upload Discharge PDF",
+    yourPlans: "Your Care Plans",
+    noPlansCoord: "No care plans yet. Upload a PDF to create one.",
+    inviteCodeLabel: "Invite Code",
+    copied: "Copied!",
+    patient: "Patient",
+    noPlansCaregiver: "You are not connected to any care plans.",
+    joinPlanBtn: "Join a Plan",
+    uploading: "Uploading...",
+    planCreated: "Care plan created successfully!"
   },
   es: {
     welcome: "Bienvenido a su Panel de Cuidados",
@@ -92,7 +103,18 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     successLink: "¡Vinculado con éxito! Iniciando panel...",
     verifying: "Verificando...",
     connectBtn: "Conectar",
-    requiresAuth: "Requiere autorización del equipo de atención primaria."
+    requiresAuth: "Requiere autorización del equipo de atención primaria.",
+    createPlan: "Crear Nuevo Plan",
+    uploadPdf: "Subir PDF de Alta",
+    yourPlans: "Sus Planes de Cuidado",
+    noPlansCoord: "Aún no hay planes. Suba un PDF para crear uno.",
+    inviteCodeLabel: "Código de Invitación",
+    copied: "¡Copiado!",
+    patient: "Paciente",
+    noPlansCaregiver: "No está conectado a ningún plan de cuidado.",
+    joinPlanBtn: "Unirse a un Plan",
+    uploading: "Subiendo...",
+    planCreated: "¡Plan de cuidado creado exitosamente!"
   },
   zh: {
     welcome: "欢迎来到您的护理仪表板",
@@ -134,7 +156,18 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     successLink: "连接成功！正在初始化仪表板...",
     verifying: "验证中...",
     connectBtn: "连接",
-    requiresAuth: "需要初级护理团队的授权。"
+    requiresAuth: "需要初级护理团队的授权。",
+    createPlan: "创建新计划",
+    uploadPdf: "上传出院PDF",
+    yourPlans: "您的护理计划",
+    noPlansCoord: "暂无计划。上传PDF以创建一个。",
+    inviteCodeLabel: "邀请码",
+    copied: "已复制！",
+    patient: "患者",
+    noPlansCaregiver: "您尚未连接到任何护理计划。",
+    joinPlanBtn: "加入计划",
+    uploading: "上传中...",
+    planCreated: "护理计划创建成功！"
   },
   ko: {
     welcome: "케어 대시보드에 오신 것을 환영합니다",
@@ -176,7 +209,18 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     successLink: "성공적으로 연결되었습니다! 대시보드 초기화 중...",
     verifying: "확인 중...",
     connectBtn: "연결",
-    requiresAuth: "1차 진료팀의 승인이 필요합니다."
+    requiresAuth: "1차 진료팀의 승인이 필요합니다.",
+    createPlan: "새 계획 만들기",
+    uploadPdf: "퇴원 PDF 업로드",
+    yourPlans: "내 케어 플랜",
+    noPlansCoord: "아직 계획이 없습니다. PDF를 업로드하여 생성하세요.",
+    inviteCodeLabel: "초대 코드",
+    copied: "복사됨!",
+    patient: "환자",
+    noPlansCaregiver: "연결된 케어 플랜이 없습니다.",
+    joinPlanBtn: "플랜 참여",
+    uploading: "업로드 중...",
+    planCreated: "케어 플랜이 성공적으로 생성되었습니다!"
   },
   hi: {
     welcome: "आपके केयर डैशबोर्ड में आपका स्वागत है",
@@ -218,7 +262,18 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     successLink: "सफलतापूर्वक जुड़ गया! डैशबोर्ड प्रारंभ किया जा रहा है...",
     verifying: "सत्यापित किया जा रहा है...",
     connectBtn: "जोड़ें",
-    requiresAuth: "प्राथमिक देखभाल टीम से प्राधिकरण की आवश्यकता है।"
+    requiresAuth: "प्राथमिक देखभाल टीम से प्राधिकरण की आवश्यकता है।",
+    createPlan: "नया प्लान बनाएं",
+    uploadPdf: "डिस्चार्ज PDF अपलोड करें",
+    yourPlans: "आपकी देखभाल योजनाएं",
+    noPlansCoord: "अभी तक कोई योजना नहीं। एक बनाने के लिए PDF अपलोड करें।",
+    inviteCodeLabel: "निमंत्रण कोड",
+    copied: "कॉपी हो गया!",
+    patient: "मरीज़",
+    noPlansCaregiver: "आप किसी भी देखभाल योजना से जुड़े नहीं हैं।",
+    joinPlanBtn: "योजना से जुड़ें",
+    uploading: "अपलोड हो रहा है...",
+    planCreated: "देखभाल योजना सफलतापूर्वक बनाई गई!"
   },
   ru: {
     welcome: "Добро пожаловать в панель ухода",
@@ -260,6 +315,17 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     successLink: "Успешно присоединено! Инициализация панели...",
     verifying: "Проверка...",
     connectBtn: "Подключить",
-    requiresAuth: "Требуется авторизация от команды первичной медицинской помощи."
+    requiresAuth: "Требуется авторизация от команды первичной медицинской помощи.",
+    createPlan: "Создать Новый План",
+    uploadPdf: "Загрузить PDF выписки",
+    yourPlans: "Ваши Планы Ухода",
+    noPlansCoord: "Планов пока нет. Загрузите PDF для создания.",
+    inviteCodeLabel: "Код Приглашения",
+    copied: "Скопировано!",
+    patient: "Пациент",
+    noPlansCaregiver: "Вы не подключены к плану ухода.",
+    joinPlanBtn: "Присоединиться",
+    uploading: "Загрузка...",
+    planCreated: "План ухода успешно создан!"
   }
 };
