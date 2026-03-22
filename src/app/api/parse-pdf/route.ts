@@ -7,7 +7,6 @@ import { auth0 } from "@/lib/auth0";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 function generateInviteCode(): string {
-  // Generate a random 6-character alphanumeric code
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
@@ -45,7 +44,7 @@ const responseSchema: Schema = {
     },
     redFlags: {
       type: SchemaType.ARRAY,
-      items: { 
+      items: {
         type: SchemaType.OBJECT,
         properties: {
           issue: { type: SchemaType.STRING, description: "The red flag symptom or warning" },
@@ -68,9 +67,19 @@ const responseSchema: Schema = {
         required: ["title", "start", "end", "allDay"]
       },
       description: "Derived calendar events logically mapping the medication frequencies into actionable time slots for the NEXT 48 hours. DO NOT use relative days.",
-    }
+    },
+    contactInfo: {
+      type: SchemaType.OBJECT,
+      properties: {
+        name: { type: SchemaType.STRING, description: "Doctor or provider name if found, otherwise empty string" },
+        phone: { type: SchemaType.STRING, description: "Contact phone number if found, otherwise empty string" },
+        facility: { type: SchemaType.STRING, description: "Hospital or clinic name if found, otherwise empty string" },
+      },
+      required: ["name", "phone", "facility"],
+      description: "Contact information for the discharging doctor, provider, or facility extracted from the document.",
+    },
   },
-  required: ["patientName", "medications", "careInstructions", "redFlags", "calendarEvents"],
+  required: ["patientName", "medications", "careInstructions", "redFlags", "calendarEvents", "contactInfo"],
 };
 
 export async function POST(req: NextRequest) {
@@ -81,56 +90,86 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
     const targetLanguage = (formData.get("targetLanguage") as string) || "en";
+    const createdByRole = (formData.get("createdByRole") as string) || "Coordinator";
 
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    // Support both single "file" and multiple "files" uploads
+    const files: File[] = [];
+    const singleFile = formData.get("file") as File | null;
+    const multiFiles = formData.getAll("files") as File[];
+
+    if (singleFile) files.push(singleFile);
+    if (multiFiles.length > 0) files.push(...multiFiles);
+
+    if (files.length === 0) {
+      return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
-    const buffer = await file.arrayBuffer();
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
       },
     });
 
-    const generativePart = {
-      inlineData: {
-        data: Buffer.from(buffer).toString("base64"),
-        mimeType: file.type, // Make sure it's application/pdf or image type
-      },
-    };
+    // Convert all files to Gemini inline data parts
+    const fileParts = await Promise.all(
+      files.map(async (f) => {
+        const buffer = await f.arrayBuffer();
+        return {
+          inlineData: {
+            data: Buffer.from(buffer).toString("base64"),
+            mimeType: f.type,
+          },
+        };
+      })
+    );
 
-    const prompt = `You are an expert medical transcriptionist. Extract the patient's name, all their medications (with dosage and frequency), and any 'red flags' or warning signs that require immediate action from the discharge document. For every extracted point, honestly classify your confidence level as 'High', 'Medium', or 'Low' based on legibility. Finally, map the medication instructions into actionable 'calendarEvents' for the next 48 hours with accurate ISO 8601 timestamps so caregivers have an immediate schedule.
+    const prompt = `You are an expert medical transcriptionist. You are receiving one or more pages/images of a patient's discharge document. Treat ALL uploaded files as parts of the SAME document.
+
+Extract:
+- Patient name
+- All medications (name, dosage, frequency) with confidence levels
+- Care instructions with confidence levels
+- Red flags / warning signs with confidence levels
+- Calendar events for the next 48 hours based on medication frequencies
+- Contact information (doctor name, phone number, hospital/facility name) if visible anywhere in the document
+
+For every extracted point, classify confidence as 'High', 'Medium', or 'Low' based on legibility. If contact info is not found, return empty strings.
 
 CRITICAL TRANSLATION REQUIREMENT: You MUST translate and output ALL extracted medical JSON data, symptom descriptions, medication instructions, and calendar event titles into the language corresponding to this ISO code: '${targetLanguage}'. Do not use English unless the targetLanguage is 'en'.`;
 
-    // Call Gemini 1.5 Flash to process the medical document
-    const result = await model.generateContent([prompt, generativePart]);
+    const result = await model.generateContent([prompt, ...fileParts]);
     const text = result.response.text();
     let parsedData;
     try {
       parsedData = JSON.parse(text);
-    } catch (err) {
+    } catch {
       return NextResponse.json({ error: "Failed to parse AI output as JSON" }, { status: 500 });
     }
 
-    // Connect to database to save the extracted care plan
     await dbConnect();
     const inviteCode = generateInviteCode();
 
+    const isCaregiver = createdByRole === "Caregiver";
+
     const newCarePlan = await CarePlan.create({
-      coordinatorId: session.user.sub, // The Auth0 ID of the Coordinator
-      caregiverIds: [],
+      coordinatorId: isCaregiver ? "" : session.user.sub,
+      createdByRole: isCaregiver ? "Caregiver" : "Coordinator",
+      caregiverIds: isCaregiver ? [session.user.sub] : [],
       inviteCode,
+      originalLanguage: targetLanguage,
       patientName: parsedData.patientName || "Unknown",
       medications: parsedData.medications || [],
       careInstructions: parsedData.careInstructions || [],
       redFlags: parsedData.redFlags || [],
-      calendarEvents: parsedData.calendarEvents || []
+      calendarEvents: parsedData.calendarEvents || [],
+      contactInfo: parsedData.contactInfo || {},
+      documents: fileParts.map(p => ({
+        data: p.inlineData.data,
+        mimeType: p.inlineData.mimeType
+      })),
     });
 
     return NextResponse.json({

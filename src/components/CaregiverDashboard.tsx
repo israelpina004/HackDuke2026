@@ -1,118 +1,104 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
-import { ClipboardList, ArrowRight, Pill, AlertTriangle, Heart } from "lucide-react";
+import { ClipboardList, ArrowRight, Upload } from "lucide-react";
 import Link from "next/link";
+import CarePlanCard, { CarePlanData } from "./CarePlanCard";
 
-interface CarePlanData {
-  _id: string;
-  patientName: string;
-  medications: { name: string; dosage: string; frequency: string; confidence: string }[];
-  redFlags: { issue: string; confidence: string }[];
-  careInstructions: { instruction: string; confidence: string }[];
-}
+export default function CaregiverDashboard({ plans: initialPlans }: { plans: CarePlanData[] }) {
+  const { t, language } = useLanguage();
+  const [plans, setPlans] = useState<CarePlanData[]>(initialPlans);
+  const [uploading, setUploading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-export default function CaregiverDashboard({ plans }: { plans: CarePlanData[] }) {
-  const { t } = useLanguage();
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-  if (plans.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-6 py-20">
-        <ClipboardList className="h-16 w-16 text-slate-300" />
-        <p className="text-slate-500 text-lg text-center">{t("noPlansCaregiver")}</p>
-        <Link
-          href="/link"
-          className="inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors active:scale-[0.98]"
-        >
-          {t("joinPlanBtn")} <ArrowRight size={18} />
-        </Link>
-      </div>
-    );
-  }
+    setUploading(true);
+    setSuccessMsg("");
+
+    const formData = new FormData();
+    for (let i = 0; i < fileList.length; i++) {
+      formData.append("files", fileList[i]);
+    }
+    formData.append("targetLanguage", language);
+    formData.append("createdByRole", "Caregiver");
+
+    try {
+      const res = await fetch("/api/parse-pdf", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      const newPlan: CarePlanData = {
+        _id: data.carePlan._id,
+        patientName: data.carePlan.patientName,
+        createdByRole: "Caregiver",
+        contactInfo: data.carePlan.contactInfo,
+        medications: data.carePlan.medications || [],
+        redFlags: data.carePlan.redFlags || [],
+        careInstructions: data.carePlan.careInstructions || [],
+        documents: (data.carePlan.documents || []).map((d: any) => ({ mimeType: d.mimeType })),
+      };
+      setPlans((prev) => [newPlan, ...prev]);
+      setSuccessMsg(t("planCreated"));
+      setTimeout(() => setSuccessMsg(""), 4000);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-8">
-      {plans.map((plan) => (
-        <div key={plan._id} className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-slate-800">
-            {t("patient")}: {plan.patientName}
-          </h2>
-
-          {/* Medications */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500 p-5">
-            <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-              <Pill size={18} className="text-blue-500" /> {t("medications")}
-            </h3>
-            {plan.medications.length === 0 ? (
-              <p className="text-sm text-slate-400">—</p>
-            ) : (
-              <ul className="space-y-2">
-                {plan.medications.map((med, i) => (
-                  <li key={i} className="flex items-start justify-between text-sm">
-                    <div>
-                      <span className="font-medium text-slate-700">{med.name}</span>
-                      <span className="text-slate-400 ml-2">{med.dosage} · {med.frequency}</span>
-                    </div>
-                    <ConfidenceBadge level={med.confidence} t={t} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Red Flags */}
-          {plan.redFlags.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-red-500 p-5">
-              <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                <AlertTriangle size={18} className="text-red-500" /> {t("redFlags")}
-              </h3>
-              <ul className="space-y-2">
-                {plan.redFlags.map((flag, i) => (
-                  <li key={i} className="flex items-start justify-between text-sm">
-                    <span className="text-slate-700">{flag.issue}</span>
-                    <ConfidenceBadge level={flag.confidence} t={t} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Care Instructions */}
-          {plan.careInstructions.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-green-500 p-5">
-              <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                <Heart size={18} className="text-green-500" /> {t("careInstructions")}
-              </h3>
-              <ul className="space-y-2">
-                {plan.careInstructions.map((ci, i) => (
-                  <li key={i} className="flex items-start justify-between text-sm">
-                    <span className="text-slate-700">{ci.instruction}</span>
-                    <ConfidenceBadge level={ci.confidence} t={t} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+    <div className="flex flex-col gap-6">
+      {/* Top Actions */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-2xl font-bold text-slate-800">{t("welcome")}</h1>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/link"
+            className="inline-flex items-center gap-2 bg-white text-blue-600 font-semibold px-4 py-2.5 rounded-xl border border-blue-200 hover:bg-blue-50 transition-colors text-sm"
+          >
+            {t("joinPlanBtn")} <ArrowRight size={16} />
+          </Link>
+          <label className="cursor-pointer inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors active:scale-[0.98] text-sm">
+            <Upload size={16} />
+            {uploading ? t("uploading") : t("uploadDocs")}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.heic,image/*"
+              multiple
+              className="hidden"
+              onChange={handleUpload}
+              disabled={uploading}
+            />
+          </label>
         </div>
+      </div>
+
+      {successMsg && (
+        <div className="bg-green-50 text-green-700 text-sm font-medium py-3 px-4 rounded-lg border border-green-100">
+          {successMsg}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {plans.length === 0 && (
+        <div className="flex flex-col items-center justify-center gap-6 py-20">
+          <ClipboardList className="h-16 w-16 text-slate-300" />
+          <p className="text-slate-500 text-lg text-center">{t("noPlansCaregiver")}</p>
+        </div>
+      )}
+
+      {/* Plans */}
+      {plans.map((plan) => (
+        <CarePlanCard key={plan._id} plan={plan} />
       ))}
     </div>
-  );
-}
-
-function ConfidenceBadge({ level, t }: { level: string; t: (key: string) => string }) {
-  const styles: Record<string, string> = {
-    High: "bg-green-50 text-green-700 border-green-200",
-    Medium: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    Low: "bg-red-50 text-red-700 border-red-200",
-  };
-  const keys: Record<string, string> = {
-    High: "highConfidence",
-    Medium: "mediumConfidence",
-    Low: "lowConfidence",
-  };
-  return (
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border whitespace-nowrap ${styles[level] || styles.High}`}>
-      {t(keys[level] || "highConfidence")}
-    </span>
   );
 }

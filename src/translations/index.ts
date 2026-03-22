@@ -61,7 +61,15 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     noPlansCaregiver: "You are not connected to any care plans.",
     joinPlanBtn: "Join a Plan",
     uploading: "Uploading...",
-    planCreated: "Care plan created successfully!"
+    planCreated: "Care plan created successfully!",
+    uploadDocs: "Upload Documents",
+    selfUploaded: "Self-uploaded",
+    noCoordinator: "No coordinator linked.",
+    contactDoctor: "Contact Provider",
+    facility: "Facility",
+    doctorPhone: "Phone",
+    viewDocuments: "View Documents",
+    document: "Document"
   },
   es: {
     welcome: "Bienvenido a su Panel de Cuidados",
@@ -114,7 +122,15 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     noPlansCaregiver: "No está conectado a ningún plan de cuidado.",
     joinPlanBtn: "Unirse a un Plan",
     uploading: "Subiendo...",
-    planCreated: "¡Plan de cuidado creado exitosamente!"
+    planCreated: "¡Plan de cuidado creado exitosamente!",
+    uploadDocs: "Subir Documentos",
+    selfUploaded: "Auto-subido",
+    noCoordinator: "No hay coordinador vinculado.",
+    contactDoctor: "Contactar Proveedor",
+    facility: "Centro Médico",
+    doctorPhone: "Teléfono",
+    viewDocuments: "Ver Documentos",
+    document: "Documento"
   },
   zh: {
     welcome: "欢迎来到您的护理仪表板",
@@ -167,7 +183,15 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     noPlansCaregiver: "您尚未连接到任何护理计划。",
     joinPlanBtn: "加入计划",
     uploading: "上传中...",
-    planCreated: "护理计划创建成功！"
+    planCreated: "护理计划创建成功！",
+    uploadDocs: "上传文件",
+    selfUploaded: "自行上传",
+    noCoordinator: "未关联协调员。",
+    contactDoctor: "联系医生",
+    facility: "医疗机构",
+    doctorPhone: "电话",
+    viewDocuments: "查看文件",
+    document: "文件"
   },
   ko: {
     welcome: "케어 대시보드에 오신 것을 환영합니다",
@@ -220,7 +244,15 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     noPlansCaregiver: "연결된 케어 플랜이 없습니다.",
     joinPlanBtn: "플랜 참여",
     uploading: "업로드 중...",
-    planCreated: "케어 플랜이 성공적으로 생성되었습니다!"
+    planCreated: "케어 플랜이 성공적으로 생성되었습니다!",
+    uploadDocs: "문서 업로드",
+    selfUploaded: "직접 업로드",
+    noCoordinator: "연결된 코디네이터가 없습니다.",
+    contactDoctor: "의료진 연락",
+    facility: "의료시설",
+    doctorPhone: "전화",
+    viewDocuments: "문서 보기",
+    document: "문서"
   },
   hi: {
     welcome: "आपके केयर डैशबोर्ड में आपका स्वागत है",
@@ -273,7 +305,15 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     noPlansCaregiver: "आप किसी भी देखभाल योजना से जुड़े नहीं हैं।",
     joinPlanBtn: "योजना से जुड़ें",
     uploading: "अपलोड हो रहा है...",
-    planCreated: "देखभाल योजना सफलतापूर्वक बनाई गई!"
+    planCreated: "देखभाल योजना सफलतापूर्वक बनाई गई!",
+    uploadDocs: "दस्तावेज़ अपलोड करें",
+    selfUploaded: "स्वयं अपलोड",
+    noCoordinator: "कोई समन्वयक नहीं जुड़ा।",
+    contactDoctor: "डॉक्टर से संपर्क",
+    facility: "सुविधा",
+    doctorPhone: "फ़ोन",
+    viewDocuments: "दस्तावेज़ देखें",
+    document: "दस्तावेज़"
   },
   ru: {
     welcome: "Добро пожаловать в панель ухода",
@@ -326,6 +366,14 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     noPlansCaregiver: "Вы не подключены к плану ухода.",
     joinPlanBtn: "Присоединиться",
     uploading: "Загрузка...",
-    planCreated: "План ухода успешно создан!"
+    planCreated: "План ухода успешно создан!",
+    uploadDocs: "Загрузить документы",
+    selfUploaded: "Самостоятельно загружено",
+    noCoordinator: "Координатор не подключен.",
+    contactDoctor: "Связаться с врачом",
+    facility: "Учреждение",
+    doctorPhone: "Телефон",
+    viewDocuments: "Просмотр документов",
+    document: "Документ"
   }
 };

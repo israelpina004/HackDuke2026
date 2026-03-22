@@ -24,15 +24,30 @@ export interface ICalendarEvent {
   allDay: boolean;
 }
 
+export interface IContactInfo {
+  name?: string;
+  phone?: string;
+  facility?: string;
+}
+
 export interface ICarePlan extends Document {
   coordinatorId: string;
+  createdByRole: 'Coordinator' | 'Caregiver';
   caregiverIds: string[];
   inviteCode: string;
   patientName: string;
+  originalLanguage: string;
   medications: IMedication[];
   careInstructions: ICareInstruction[];
   redFlags: IRedFlag[];
   calendarEvents: ICalendarEvent[];
+  documents: { data: string; mimeType: string }[];
+  contactInfo?: IContactInfo;
+  translations: Map<string, {
+    medications: IMedication[];
+    redFlags: IRedFlag[];
+    careInstructions: ICareInstruction[];
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,14 +78,26 @@ const CalendarEventSchema = new Schema<ICalendarEvent>({
 
 const CarePlanSchema = new Schema<ICarePlan>(
   {
-    coordinatorId: { type: String, required: true, index: true },
+    coordinatorId: { type: String, default: '', index: true },
+    createdByRole: { type: String, enum: ['Coordinator', 'Caregiver'], required: true, default: 'Coordinator' },
     caregiverIds: { type: [String], default: [] },
     inviteCode: { type: String, required: true, unique: true, index: true },
     patientName: { type: String, required: true },
     medications: { type: [MedicationSchema], default: [] },
     careInstructions: { type: [CareInstructionSchema], default: [] },
     redFlags: { type: [RedFlagSchema], default: [] },
-    calendarEvents: { type: [CalendarEventSchema], default: [] }
+    calendarEvents: { type: [CalendarEventSchema], default: [] },
+    documents: [{
+      data: { type: String, required: true },
+      mimeType: { type: String, required: true },
+    }],
+    contactInfo: {
+      name: { type: String },
+      phone: { type: String },
+      facility: { type: String },
+    },
+    originalLanguage: { type: String, default: 'en' },
+    translations: { type: Map, of: Schema.Types.Mixed, default: {} },
   },
   {
     timestamps: true,

@@ -2,35 +2,30 @@
 
 import { useState, useRef } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
-import { Upload, Copy, Check, FileText, Users } from "lucide-react";
+import { Upload, FileText } from "lucide-react";
+import CarePlanCard, { CarePlanData } from "./CarePlanCard";
 
-interface CarePlanSummary {
-  _id: string;
-  patientName: string;
-  inviteCode: string;
-  caregiverIds: string[];
-  medications: { name: string }[];
-  createdAt: string;
-}
-
-export default function CoordinatorDashboard({ plans: initialPlans }: { plans: CarePlanSummary[] }) {
+export default function CoordinatorDashboard({ plans: initialPlans }: { plans: CarePlanData[] }) {
   const { t, language } = useLanguage();
-  const [plans, setPlans] = useState<CarePlanSummary[]>(initialPlans);
+  const [plans, setPlans] = useState<CarePlanData[]>(initialPlans);
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
 
     setUploading(true);
     setSuccessMsg("");
 
     const formData = new FormData();
-    formData.append("file", file);
+    for (let i = 0; i < fileList.length; i++) {
+      formData.append("files", fileList[i]);
+    }
     formData.append("targetLanguage", language);
+    formData.append("createdByRole", "Coordinator");
 
     try {
       const res = await fetch("/api/parse-pdf", { method: "POST", body: formData });
@@ -38,7 +33,12 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
 
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
-      setPlans((prev) => [data.carePlan, ...prev]);
+      const newPlan: CarePlanData = {
+        ...data.carePlan,
+        documents: (data.carePlan.documents || []).map((d: any) => ({ mimeType: d.mimeType })),
+      };
+
+      setPlans((prev) => [newPlan, ...prev]);
       setSuccessMsg(t("planCreated"));
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch (err: any) {
@@ -47,12 +47,6 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  };
-
-  const copyCode = (code: string, planId: string) => {
-    navigator.clipboard.writeText(code);
-    setCopiedId(planId);
-    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
@@ -66,7 +60,8 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,image/*"
+            accept=".pdf,.jpg,.jpeg,.png,.heic,image/*"
+            multiple
             className="hidden"
             onChange={handleUpload}
             disabled={uploading}
@@ -87,35 +82,10 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
           <p className="text-slate-500">{t("noPlansCoord")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-10">
           {plans.map((plan) => (
-            <div key={plan._id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{t("patient")}</p>
-                  <h3 className="text-lg font-bold text-slate-800">{plan.patientName}</h3>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-slate-500">
-                  <Users size={14} />
-                  <span>{plan.caregiverIds.length}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
-                <span className="text-xs font-medium text-slate-500">{t("inviteCodeLabel")}:</span>
-                <code className="font-mono font-bold text-blue-600 tracking-widest text-sm flex-1">{plan.inviteCode}</code>
-                <button
-                  onClick={() => copyCode(plan.inviteCode, plan._id)}
-                  className="text-slate-400 hover:text-blue-600 transition-colors"
-                  title="Copy"
-                >
-                  {copiedId === plan._id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                </button>
-              </div>
-
-              <p className="text-xs text-slate-400">
-                {plan.medications.length} {t("medications")}
-              </p>
+            <div key={plan._id} className="pb-10 border-b border-slate-200 last:border-0 last:pb-0">
+              <CarePlanCard plan={plan} />
             </div>
           ))}
         </div>
