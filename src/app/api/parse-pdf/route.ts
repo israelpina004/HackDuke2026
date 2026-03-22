@@ -54,20 +54,6 @@ const responseSchema: Schema = {
       },
       description: "Any severe symptoms or conditions requiring urgent attention",
     },
-    calendarEvents: {
-      type: SchemaType.ARRAY,
-      items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          title: { type: SchemaType.STRING, description: "Summary of the event, e.g., 'Take Tylenol (50mg)'" },
-          start: { type: SchemaType.STRING, description: "ISO 8601 string for start date/time" },
-          end: { type: SchemaType.STRING, description: "ISO 8601 string for end date/time" },
-          allDay: { type: SchemaType.BOOLEAN, description: "True if all day, False if specific time" }
-        },
-        required: ["title", "start", "end", "allDay"]
-      },
-      description: "Derived calendar events logically mapping the medication frequencies into actionable time slots for the NEXT 48 hours. DO NOT use relative days.",
-    },
     contactInfo: {
       type: SchemaType.OBJECT,
       properties: {
@@ -79,8 +65,39 @@ const responseSchema: Schema = {
       description: "Contact information for the discharging doctor, provider, or facility extracted from the document.",
     },
   },
-  required: ["patientName", "medications", "careInstructions", "redFlags", "calendarEvents", "contactInfo"],
+  required: ["patientName", "medications", "careInstructions", "redFlags", "contactInfo"],
 };
+
+interface ParsedMedication {
+  name: string;
+  dosage: string;
+  frequency: string;
+  confidence: string;
+}
+
+interface ParsedCareInstruction {
+  instruction: string;
+  confidence: string;
+}
+
+interface ParsedRedFlag {
+  issue: string;
+  confidence: string;
+}
+
+interface ParsedContactInfo {
+  name?: string;
+  phone?: string;
+  facility?: string;
+}
+
+interface ParsedCarePlanData {
+  patientName?: string;
+  medications?: ParsedMedication[];
+  careInstructions?: ParsedCareInstruction[];
+  redFlags?: ParsedRedFlag[];
+  contactInfo?: ParsedContactInfo;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -133,21 +150,23 @@ Extract:
 - All medications (name, dosage, frequency) with confidence levels
 - Care instructions with confidence levels
 - Red flags / warning signs with confidence levels
-- Calendar events for the next 48 hours based on medication frequencies
 - Contact information (doctor name, phone number, hospital/facility name) if visible anywhere in the document
 
 For every extracted point, classify confidence as 'High', 'Medium', or 'Low' based on legibility. If contact info is not found, return empty strings.
 
-CRITICAL TRANSLATION REQUIREMENT: You MUST translate and output ALL extracted medical JSON data, symptom descriptions, medication instructions, and calendar event titles into the language corresponding to this ISO code: '${targetLanguage}'. Do not use English unless the targetLanguage is 'en'.`;
+CRITICAL TRANSLATION REQUIREMENT: You MUST translate and output ALL extracted medical JSON data, symptom descriptions, medication instructions, and contact information into the language corresponding to this ISO code: '${targetLanguage}'. Do not use English unless the targetLanguage is 'en'.`;
 
     const result = await model.generateContent([prompt, ...fileParts]);
     const text = result.response.text();
-    let parsedData;
+    let parsedData: ParsedCarePlanData;
     try {
       parsedData = JSON.parse(text);
     } catch {
       return NextResponse.json({ error: "Failed to parse AI output as JSON" }, { status: 500 });
     }
+
+    const medications = parsedData.medications || [];
+    const careInstructions = parsedData.careInstructions || [];
 
     await dbConnect();
     const inviteCode = generateInviteCode();
@@ -161,10 +180,9 @@ CRITICAL TRANSLATION REQUIREMENT: You MUST translate and output ALL extracted me
       inviteCode,
       originalLanguage: targetLanguage,
       patientName: parsedData.patientName || "Unknown",
-      medications: parsedData.medications || [],
-      careInstructions: parsedData.careInstructions || [],
+      medications,
+      careInstructions,
       redFlags: parsedData.redFlags || [],
-      calendarEvents: parsedData.calendarEvents || [],
       contactInfo: parsedData.contactInfo || {},
       documents: fileParts.map(p => ({
         data: p.inlineData.data,
@@ -177,8 +195,9 @@ CRITICAL TRANSLATION REQUIREMENT: You MUST translate and output ALL extracted me
       carePlan: newCarePlan,
       parsedData,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error parsing document:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

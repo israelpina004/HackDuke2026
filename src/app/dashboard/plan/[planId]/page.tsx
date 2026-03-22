@@ -6,6 +6,27 @@ import CarePlanCard from "@/components/CarePlanCard";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+interface PlanMedication {
+  name: string;
+  dosage: string;
+  frequency: string;
+  confidence: string;
+}
+
+interface PlanRedFlag {
+  issue: string;
+  confidence: string;
+}
+
+interface PlanInstruction {
+  instruction: string;
+  confidence: string;
+}
+
+interface PlanDocument {
+  mimeType?: string;
+}
+
 export default async function PlanPage({
   params,
 }: {
@@ -42,21 +63,21 @@ export default async function PlanPage({
     createdByRole: plan.createdByRole || "Coordinator",
     originalLanguage: plan.originalLanguage || "en",
     contactInfo: plan.contactInfo || {},
-    medications: (plan.medications || []).map((m: any) => ({
+    medications: (plan.medications || []).map((m: PlanMedication) => ({
       name: m.name,
       dosage: m.dosage,
       frequency: m.frequency,
       confidence: m.confidence,
     })),
-    redFlags: (plan.redFlags || []).map((r: any) => ({
+    redFlags: (plan.redFlags || []).map((r: PlanRedFlag) => ({
       issue: r.issue,
       confidence: r.confidence,
     })),
-    careInstructions: (plan.careInstructions || []).map((c: any) => ({
+    careInstructions: (plan.careInstructions || []).map((c: PlanInstruction) => ({
       instruction: c.instruction,
       confidence: c.confidence,
     })),
-    documents: (plan.documents || []).map((d: any) => ({
+    documents: (plan.documents || []).map((d: PlanDocument) => ({
       mimeType: d.mimeType || "application/pdf",
     })),
     notes: plan.notes || "",

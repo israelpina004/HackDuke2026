@@ -1,10 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextRequest, NextResponse } from "next/server";
+import { auth0 } from "@/lib/auth0";
 import dbConnect from "@/lib/mongoose";
 import CarePlan from "@/models/CarePlan";
-import { auth0 } from "@/lib/auth0";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+
+interface TranslationPlan {
+  originalLanguage: string;
+  medications: Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    confidence: "High" | "Medium" | "Low";
+  }>;
+  redFlags: Array<{
+    issue: string;
+    confidence: "High" | "Medium" | "Low";
+  }>;
+  careInstructions: Array<{
+    instruction: string;
+    confidence: "High" | "Medium" | "Low";
+  }>;
+  translations?: Map<string, unknown> | Record<string, unknown>;
+}
+
+function stripFences(text: string) {
+  return text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,20 +44,20 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
-    // Check if translation already cached
     const plan = await CarePlan.findOne({
       _id: planId,
       $or: [
         { coordinatorId: session.user.sub },
         { caregiverIds: session.user.sub },
       ],
-    }).select('medications redFlags careInstructions originalLanguage translations');
+    })
+      .select("medications redFlags careInstructions originalLanguage translations")
+      .lean<TranslationPlan | null>();
 
     if (!plan) {
       return NextResponse.json({ error: "Plan not found" }, { status: 404 });
     }
 
-    // If requesting the original language, just return the stored data
     if (targetLanguage === plan.originalLanguage) {
       return NextResponse.json({
         medications: plan.medications,
@@ -44,34 +67,34 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Check cache
-    const cached = plan.translations?.get(targetLanguage);
+    const cached = plan.translations instanceof Map
+      ? plan.translations.get(targetLanguage)
+      : plan.translations?.[targetLanguage];
     if (cached) {
       return NextResponse.json({ ...cached, cached: true });
     }
 
-    // Build a compact JSON representation of the plan for Gemini
     const sourceData = {
-      medications: plan.medications.map((m: any) => ({
-        name: m.name,
-        dosage: m.dosage,
-        frequency: m.frequency,
-        confidence: m.confidence,
+      medications: plan.medications.map((medication) => ({
+        name: medication.name,
+        dosage: medication.dosage,
+        frequency: medication.frequency,
+        confidence: medication.confidence,
       })),
-      redFlags: plan.redFlags.map((r: any) => ({
-        issue: r.issue,
-        confidence: r.confidence,
+      redFlags: plan.redFlags.map((flag) => ({
+        issue: flag.issue,
+        confidence: flag.confidence,
       })),
-      careInstructions: plan.careInstructions.map((c: any) => ({
-        instruction: c.instruction,
-        confidence: c.confidence,
+      careInstructions: plan.careInstructions.map((instruction) => ({
+        instruction: instruction.instruction,
+        confidence: instruction.confidence,
       })),
     };
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const prompt = `Translate the following medical care plan JSON into the language with ISO code '${targetLanguage}'.
-Keep the EXACT same JSON structure. Only translate the human-readable text fields (name, dosage, frequency, issue, instruction).
+Keep the EXACT same JSON structure.
+Only translate the human-readable text fields (name, dosage, frequency, issue, instruction).
 Do NOT translate 'confidence' values — they must remain 'High', 'Medium', or 'Low'.
 Return ONLY valid JSON, no markdown fences.
 
@@ -80,24 +103,22 @@ ${JSON.stringify(sourceData)}`;
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
-    let translated;
+    let translated: unknown;
     try {
-      // Strip markdown fences if present
-      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      translated = JSON.parse(cleaned);
+      translated = JSON.parse(stripFences(text));
     } catch {
       return NextResponse.json({ error: "Failed to parse translation" }, { status: 500 });
     }
 
-    // Cache the translation in MongoDB
     await CarePlan.updateOne(
       { _id: planId },
       { $set: { [`translations.${targetLanguage}`]: translated } }
     );
 
-    return NextResponse.json({ ...translated, cached: false });
-  } catch (error: any) {
+    return NextResponse.json({ ...(translated as object), cached: false });
+  } catch (error: unknown) {
     console.error("Translation error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

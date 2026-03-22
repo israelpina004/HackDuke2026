@@ -38,6 +38,12 @@ export interface IAudioBriefingCacheEntry {
   createdAt: Date;
 }
 
+export interface IExplanationCacheEntry {
+  contentHash: string;
+  explanation: string;
+  createdAt: Date;
+}
+
 export interface ICarePlan extends Document {
   coordinatorId: string;
   createdByRole: 'Coordinator' | 'Caregiver';
@@ -58,6 +64,7 @@ export interface ICarePlan extends Document {
     careInstructions: ICareInstruction[];
   }>;
   audioBriefings: Map<string, IAudioBriefingCacheEntry>;
+  explanationCache: Map<string, IExplanationCacheEntry>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -110,6 +117,7 @@ const CarePlanSchema = new Schema<ICarePlan>(
     originalLanguage: { type: String, default: 'en' },
     translations: { type: Map, of: Schema.Types.Mixed, default: {} },
     audioBriefings: { type: Map, of: Schema.Types.Mixed, default: {} },
+    explanationCache: { type: Map, of: Schema.Types.Mixed, default: {} },
   },
   {
     timestamps: true,

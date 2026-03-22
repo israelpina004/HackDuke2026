@@ -39,17 +39,16 @@ A multimodal AI platform that transforms static medical PDFs into a **living, sh
 * **The Script:** A second Gemini call converts the JSON task list into a warm, conversational script (e.g., *"Good morning, here is today's care schedule..."*).
 * **Audio on Demand:** ElevenLabs reads the script aloud **only** when the user clicks "Play Daily Briefing." 
 
-#### Phase D: Clarity & Scheduling
-* **The "Unclear" Loop:** A button that triggers Gemini to re-explain a specific medical task using simple analogies.
-* **Vertical Timeline Feed:** Daily schedule presented as a vertical scrolling timeline explicitly designed for mobile readability. Gemini pre-populates it, but caregivers can manually edit/reschedule.
-* **Calendar/WhatsApp Export:** Ability to generate and download `.ics` files, and share quick updates via Web Share API.
+#### Phase D: Clarity
+* **The "Explain / Elaborate" Flow:** Each major section of the care plan, including **Medications**, **Red Flags**, and **Care Instructions**, includes an **"Explain / Elaborate"** button. When tapped, Gemini generates a clearer, more detailed explanation in the caregiver's selected language using the broader patient context such as condition, medications, instructions, and notes. Every explanation must end with the disclaimer: *"If you are still unsure about these instructions, please contact your coordinator/doctor/nurse."*
+* **Future `.ics` Export:** Calendar export remains a later interoperability feature, but is not part of the current care plan UI.
 
 #### Phase E: Coordinator-Caregiver Messaging
 * **Resolution Modals:** If an extracted task has "Low/Medium" confidence (due to poor handwriting or contradiction), the UI presents a modal explaining the uncertainty and immediately offers an instant-message input field to contact the Coordinator.
 * **Platform Messaging:** A built-in chat system allowing Caregivers to message the primary Care Coordinator without leaving the app.
 
 #### Phase F: "Handoff Without Borders" (i18n & Localization)
-* **Clinical Translation Mapping:** When parsing the PDF, Gemini translates all medical jargon and calendar events directly into the Caregiver's native language (English, Spanish, Chinese, Korean, Hindi, Russian).
+* **Clinical Translation Mapping:** When parsing the PDF, Gemini translates all medical jargon and care instructions directly into the Caregiver's native language (English, Spanish, Chinese, Korean, Hindi, Russian).
 * **Multilingual Audio:** ElevenLabs uses `eleven_multilingual_v2` to read the daily briefing natively in the target language.
 * **UI Dictionary Context:** Next.js React Context manages translations for hardcoded app UI elements (buttons, headers), proving total platform accessibility.
 
@@ -67,7 +66,7 @@ Instead of wrestling with Auth0 rule injections or custom JWT claims, we use a s
 **The MongoDB Schemas:**
 To support the new features, we expand to three core embedded philosophies:
 1. `User`: `auth0Id`, `name`, `phone`, `role`, and `preferredLanguage`.
-2. `CarePlan`: Contains `coordinatorId`, `caregiverIds`, `patientName`, `medications` (with `confidence` scores), `redFlags` (with `confidence` scores), and `calendarEvents` (Title, time, frequency).
+2. `CarePlan`: Contains `coordinatorId`, `caregiverIds`, `patientName`, `medications` (with `confidence` scores), and `redFlags` (with `confidence` scores).
 3. `Message`: Stores `senderId`, `receiverId`, `content`, and timestamp for the direct messaging feature.
 
 ---

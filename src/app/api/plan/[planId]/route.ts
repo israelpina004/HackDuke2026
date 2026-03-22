@@ -43,14 +43,17 @@ export async function PUT(
 
     // Reset translation cache because the original source data has now changed
     plan.translations = new Map();
+    plan.audioBriefings = new Map();
+    plan.explanationCache = new Map();
 
     await plan.save();
 
     return NextResponse.json({ success: true, plan });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating plan:", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { error: message },
       { status: 500 }
     );
   }
