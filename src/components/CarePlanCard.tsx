@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
-import { AlertTriangle, Building2, Check, Copy, FileText, Heart, Image as ImageIcon, Loader2, MessageSquare, Phone, Pill, Sparkles, Users, Volume2, X } from "lucide-react";
+import { AlertTriangle, Building2, CalendarDays, Check, Copy, FileText, Heart, Image as ImageIcon, Loader2, MessageSquare, Phone, Pill, Sparkles, Users, Volume2, X } from "lucide-react";
 
 interface ContactInfo {
   name?: string;
@@ -304,6 +304,110 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
     }
   };
 
+  const handleExportCalendar = () => {
+    const escIcs = (str: string) => str.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+    const now = new Date();
+    const dtstamp = now.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(8, 0, 0, 0);
+
+    const events: string[] = [];
+
+    meds.forEach((med, i) => {
+      const start = new Date(tomorrow);
+      start.setHours(8 + i, 0, 0, 0);
+      const end = new Date(start);
+      end.setMinutes(end.getMinutes() + 30);
+      const dtstart = start.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      const dtend = end.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+      events.push(
+        [
+          "BEGIN:VEVENT",
+          `UID:med-${i}-${now.getTime()}@handoff.care`,
+          `DTSTAMP:${dtstamp}`,
+          `DTSTART:${dtstart}`,
+          `DTEND:${dtend}`,
+          `SUMMARY:${escIcs(`${t("calendarExportMedication")}: ${med.name}`)}`,
+          `DESCRIPTION:${escIcs(`${t("calendarExportDosage")}: ${med.dosage || "N/A"}\\n${t("calendarExportFrequency")}: ${med.frequency || "N/A"}`)}`,
+          "RRULE:FREQ=DAILY",
+          "BEGIN:VALARM",
+          "TRIGGER:-PT15M",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${escIcs(med.name)}`,
+          "END:VALARM",
+          "END:VEVENT",
+        ].join("\r\n")
+      );
+    });
+
+    flags.forEach((flag, i) => {
+      const start = new Date(tomorrow);
+      start.setHours(9, 0, 0, 0);
+      const dtstart = start.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      const dtend = dtstart;
+      events.push(
+        [
+          "BEGIN:VEVENT",
+          `UID:flag-${i}-${now.getTime()}@handoff.care`,
+          `DTSTAMP:${dtstamp}`,
+          `DTSTART;VALUE=DATE:${dtstart.slice(0, 8)}`,
+          `SUMMARY:${escIcs(`⚠ ${t("calendarExportRedFlag")}: ${flag.issue}`)}`,
+          `DESCRIPTION:${escIcs(flag.issue)}`,
+          "END:VEVENT",
+        ].join("\r\n")
+      );
+    });
+
+    instructions.forEach((inst, i) => {
+      const start = new Date(tomorrow);
+      start.setHours(10 + i, 0, 0, 0);
+      const end = new Date(start);
+      end.setMinutes(end.getMinutes() + 30);
+      const dtstart = start.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      const dtend = end.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+      events.push(
+        [
+          "BEGIN:VEVENT",
+          `UID:care-${i}-${now.getTime()}@handoff.care`,
+          `DTSTAMP:${dtstamp}`,
+          `DTSTART:${dtstart}`,
+          `DTEND:${dtend}`,
+          `SUMMARY:${escIcs(`${t("calendarExportCareInstruction")}: ${inst.instruction.slice(0, 60)}`)}`,
+          `DESCRIPTION:${escIcs(inst.instruction)}`,
+          "RRULE:FREQ=DAILY",
+          "BEGIN:VALARM",
+          "TRIGGER:-PT15M",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${escIcs(inst.instruction)}`,
+          "END:VALARM",
+          "END:VEVENT",
+        ].join("\r\n")
+      );
+    });
+
+    const ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Handoff Care//EN",
+      "CALSCALE:GREGORIAN",
+      ...events,
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `care-plan-${plan.patientName.replace(/\s+/g, "-").toLowerCase()}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -382,6 +486,14 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
           >
             {generatingAudio ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Volume2 size={16} />}
             {generatingAudio ? t("generatingAudio") : t("audioBriefing")}
+          </button>
+
+          <button
+            onClick={handleExportCalendar}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '0.5rem', border: '1px solid #99f6e4', backgroundColor: '#f0fdfa', padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: '#0f766e', cursor: 'pointer' }}
+          >
+            <CalendarDays size={16} />
+            {t("exportToCalendar")}
           </button>
 
           {audioError && <p style={{ fontSize: '0.875rem', color: '#dc2626' }}>{audioError}</p>}
