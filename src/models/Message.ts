@@ -5,6 +5,7 @@ export interface IMessage extends Document {
   senderId: string;
   receiverId: string;
   content: string;
+  translations?: Record<string, string>;
   read: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ const MessageSchema = new Schema<IMessage>(
     senderId: { type: String, required: true, index: true },
     receiverId: { type: String, required: true, index: true },
     content: { type: String, required: true },
+    translations: { type: Schema.Types.Mixed, default: {} },
     read: { type: Boolean, default: false },
   },
   {

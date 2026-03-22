@@ -1,9 +1,11 @@
 import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import dbConnect, { withTimeout } from "@/lib/mongoose";
 import CarePlan from "@/models/CarePlan";
 import MessagePanel from "@/components/MessagePanel";
 import PlanTabs from "@/components/PlanTabs";
+import { getServerT, LanguageCode } from "@/translations";
 import { ArrowLeft } from "lucide-react";
 
 export default async function PlanMessagesPage({
@@ -15,6 +17,10 @@ export default async function PlanMessagesPage({
   if (!session?.user) redirect("/");
 
   const { planId } = await params;
+
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as LanguageCode) || "en";
+  const t = getServerT(locale);
 
   let plan;
   try {
@@ -37,12 +43,12 @@ export default async function PlanMessagesPage({
     return (
       <div className="w-full mx-auto space-y-6 p-8">
         <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
-          <ArrowLeft size={16} /> Back to Dashboard
+          <ArrowLeft size={16} /> {t("backToDashboard")}
         </a>
         <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">Connection Error</h1>
-          <p className="text-slate-500 mb-4">Unable to load this conversation. Please try again.</p>
-          <a href={`/dashboard/plan/${planId}/messages`} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Retry</a>
+          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("connectionError")}</h1>
+          <p className="text-slate-500 mb-4">{t("unableToLoadConversation")}</p>
+          <a href={`/dashboard/plan/${planId}/messages`} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
         </div>
       </div>
     );
@@ -58,7 +64,7 @@ export default async function PlanMessagesPage({
         href="/dashboard"
         className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
       >
-        <ArrowLeft size={16} /> Back to Dashboard
+        <ArrowLeft size={16} /> {t("backToDashboard")}
       </a>
 
       <div className="space-y-3">

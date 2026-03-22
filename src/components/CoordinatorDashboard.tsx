@@ -96,7 +96,7 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
                   <div>
                     <h3 className="text-xl font-bold text-slate-800 tracking-tight">{plan.patientName}</h3>
                     <p className="text-sm text-slate-500 flex items-center gap-1 mt-1">
-                      <Users size={14} /> {plan.caregiverIds?.length || 0} Caregivers connected
+                      <Users size={14} /> {plan.caregiverIds?.length || 0} {t("caregiversConnected")}
                     </p>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
                   href={`/dashboard/plan/${plan._id}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
                 >
-                  {t("viewPlan") || "View Full Plan"} <ArrowRight size={16} />
+                  {t("viewPlan")} <ArrowRight size={16} />
                 </a>
               </div>
             </div>

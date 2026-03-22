@@ -11,6 +11,8 @@ interface MessageItem {
   receiverId: string;
   receiverName: string;
   content: string;
+  originalContent?: string;
+  isTranslated?: boolean;
   createdAt: string;
 }
 
@@ -39,10 +41,12 @@ export default function MessagePanel({
   const [recipients, setRecipients] = useState<RecipientOption[]>([]);
   const [selectedRecipientId, setSelectedRecipientId] = useState("");
   const [draft, setDraft] = useState("");
+  const [translateToEnglish, setTranslateToEnglish] = useState(false);
   const [isCoordinator, setIsCoordinator] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showOriginalById, setShowOriginalById] = useState<Record<string, boolean>>({});
 
   const hasRecipients = recipients.length > 0;
 
@@ -98,23 +102,26 @@ export default function MessagePanel({
     }
 
     const recipientId = isCoordinator ? selectedRecipientId : recipients[0]?.id || "";
-
-    // Optimistic UI — show the message instantly
+    const shouldTranslate = translateToEnglish;
     const tempId = `temp-${Date.now()}`;
-    const optimistic: MessageItem = {
-      _id: tempId,
-      senderId: currentUserId,
-      senderName: "",
-      receiverId: recipientId,
-      receiverName: recipients.find((r) => r.id === recipientId)?.name || "",
-      content,
-      createdAt: new Date().toISOString(),
-    };
 
-    setMessages((current) => [...current, optimistic]);
-    setDraft("");
     setSending(true);
     setError(null);
+
+    if (!shouldTranslate) {
+      const optimistic: MessageItem = {
+        _id: tempId,
+        senderId: currentUserId,
+        senderName: "",
+        receiverId: recipientId,
+        receiverName: recipients.find((r) => r.id === recipientId)?.name || "",
+        content,
+        createdAt: new Date().toISOString(),
+      };
+
+      setMessages((current) => [...current, optimistic]);
+      setDraft("");
+    }
 
     try {
       const response = await fetch(`/api/plan/${planId}/messages`, {
@@ -123,19 +130,27 @@ export default function MessagePanel({
         body: JSON.stringify({
           content,
           recipientId: isCoordinator ? selectedRecipientId : undefined,
+          translateToEnglish: shouldTranslate,
         }),
       });
       const payload = (await response.json()) as MessagesPayload;
 
       if (!response.ok || !payload.message) {
-        // Revert the optimistic message
-        setMessages((current) => current.filter((m) => m._id !== tempId));
-        setDraft(content);
+        if (!shouldTranslate) {
+          setMessages((current) => current.filter((m) => m._id !== tempId));
+          setDraft(content);
+        }
         throw new Error(payload.error || "Failed to send message.");
       }
 
-      // Replace the optimistic placeholder with the real server message
-      setMessages((current) => current.map((m) => (m._id === tempId ? (payload.message as MessageItem) : m)));
+      if (shouldTranslate) {
+        setMessages((current) => [...current, payload.message as MessageItem]);
+        setDraft("");
+      } else {
+        setMessages((current) => current.map((m) => (m._id === tempId ? (payload.message as MessageItem) : m)));
+      }
+
+      setTranslateToEnglish(false);
     } catch (nextError: unknown) {
       setError(nextError instanceof Error ? nextError.message : "Failed to send message.");
     } finally {
@@ -181,6 +196,8 @@ export default function MessagePanel({
           <div className="flex max-h-96 flex-col gap-3 overflow-y-auto pr-1">
             {messages.map((message) => {
               const isOwnMessage = message.senderId === currentUserId;
+              const showOriginal = Boolean(showOriginalById[message._id]);
+              const displayedContent = showOriginal && message.originalContent ? message.originalContent : message.content;
 
               return (
                 <div
@@ -194,7 +211,23 @@ export default function MessagePanel({
                   <div className={`mb-1 text-xs font-medium ${isOwnMessage ? "text-blue-100" : "text-slate-500"}`}>
                     {isOwnMessage ? t("you") : message.senderName}
                   </div>
-                  <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                  <p className="whitespace-pre-wrap text-sm leading-6">{displayedContent}</p>
+                  {message.isTranslated && message.originalContent && !isOwnMessage && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowOriginalById((current) => ({
+                          ...current,
+                          [message._id]: !current[message._id],
+                        }))
+                      }
+                      className={`mt-2 text-xs font-medium underline underline-offset-2 ${
+                        isOwnMessage ? "text-blue-100" : "text-slate-500"
+                      }`}
+                    >
+                      {showOriginal ? t("showTranslation") : t("showOriginal")}
+                    </button>
+                  )}
                   <div className={`mt-2 text-[11px] ${isOwnMessage ? "text-blue-100" : "text-slate-400"}`}>
                     {new Intl.DateTimeFormat(undefined, {
                       month: "short",
@@ -202,6 +235,7 @@ export default function MessagePanel({
                       hour: "numeric",
                       minute: "2-digit",
                     }).format(new Date(message.createdAt))}
+                    {message.isTranslated && !isOwnMessage ? ` · ${t("translatedForYou")}` : ""}
                     {isCoordinator && !isOwnMessage && message.receiverId === currentUserId ? ` · ${t("from")}: ${message.senderName}` : ""}
                     {isCoordinator && isOwnMessage && message.receiverName ? ` · ${t("to")}: ${message.receiverName}` : ""}
                   </div>
@@ -235,6 +269,20 @@ export default function MessagePanel({
             {t("messagingWith")}: {recipientLabel}
           </p>
         )}
+
+        <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={translateToEnglish}
+            onChange={(event) => setTranslateToEnglish(event.target.checked)}
+            disabled={sending || !hasRecipients}
+            className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span>
+            <span className="font-medium">{t("translateToEnglish")}</span>
+            {translateToEnglish && <span className="mt-1 block text-xs text-slate-500">{t("translateToEnglishHint")}</span>}
+          </span>
+        </label>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <textarea

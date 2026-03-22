@@ -158,11 +158,11 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       if (response.ok) {
         window.location.reload();
       } else {
-        alert("Failed to save plan. Please try again.");
+        alert(t("failedToSavePlan"));
       }
     } catch (error) {
       console.error(error);
-      alert("Error saving plan.");
+      alert(t("errorSavingPlan"));
     } finally {
       setSaving(false);
     }
@@ -342,7 +342,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
           </div>
           <div className="flex items-center gap-1 text-sm text-slate-500">
             <Users size={14} />
-            <span>{plan.caregiverIds?.length || 0} Caregivers</span>
+            <span>{plan.caregiverIds?.length || 0} {t("caregiversLabel")}</span>
           </div>
         </div>
       )}
@@ -362,10 +362,10 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
             explainLabel={t("explainElaborate")}
             addButton={isEditing ? (
               <button
-                onClick={() => setEditData({ ...editData, medications: [...editData.medications, { name: "New Med", dosage: "", frequency: "", confidence: "High" }] })}
+                onClick={() => setEditData({ ...editData, medications: [...editData.medications, { name: "", dosage: "", frequency: "", confidence: "High" }] })}
                 className="text-xs text-blue-600 font-medium hover:underline"
               >
-                + Add
+                {t("addItem")}
               </button>
             ) : null}
           >
@@ -381,7 +381,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                         medications[index].name = event.target.value;
                         setEditData({ ...editData, medications });
                       }}
-                      placeholder="Name"
+                      placeholder={t("medNamePlaceholder")}
                     />
                     <input
                       className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium w-24 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
@@ -391,7 +391,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                         medications[index].dosage = event.target.value;
                         setEditData({ ...editData, medications });
                       }}
-                      placeholder="Dosage"
+                      placeholder={t("dosagePlaceholder")}
                     />
                     <input
                       className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium w-32 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
@@ -401,7 +401,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                         medications[index].frequency = event.target.value;
                         setEditData({ ...editData, medications });
                       }}
-                      placeholder="Frequency"
+                      placeholder={t("frequencyPlaceholder")}
                     />
                     <button
                       onClick={() => {
@@ -448,10 +448,10 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
               explainLabel={t("explainElaborate")}
               addButton={isEditing ? (
                 <button
-                  onClick={() => setEditData({ ...editData, redFlags: [...editData.redFlags, { issue: "New red flag", confidence: "High" }] })}
+                  onClick={() => setEditData({ ...editData, redFlags: [...editData.redFlags, { issue: "", confidence: "High" }] })}
                   className="text-xs text-red-600 font-medium hover:underline"
                 >
-                  + Add
+                  {t("addItem")}
                 </button>
               ) : null}
             >
@@ -509,10 +509,10 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
               explainLabel={t("explainElaborate")}
               addButton={isEditing ? (
                 <button
-                  onClick={() => setEditData({ ...editData, careInstructions: [...editData.careInstructions, { instruction: "New instruction", confidence: "High" }] })}
+                  onClick={() => setEditData({ ...editData, careInstructions: [...editData.careInstructions, { instruction: "", confidence: "High" }] })}
                   className="text-xs text-green-600 font-medium hover:underline"
                 >
-                  + Add
+                  {t("addItem")}
                 </button>
               ) : null}
             >
@@ -599,14 +599,14 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                     {doc.mimeType.startsWith("image/") ? (
                       <img
                         src={`/api/documents/${plan._id}/${index}`}
-                        alt={`Document ${index + 1}`}
+                        alt={`${t("document")} ${index + 1}`}
                         className="max-w-full h-auto object-contain"
                       />
                     ) : (
                       <iframe
                         src={`/api/documents/${plan._id}/${index}`}
                         className="w-full h-[70vh] border-0"
-                        title={`Document ${index + 1}`}
+                        title={`${t("document")} ${index + 1}`}
                       />
                     )}
                   </div>

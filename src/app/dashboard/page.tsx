@@ -1,13 +1,19 @@
 import { auth0 } from "@/lib/auth0";
+import { cookies } from "next/headers";
 import dbConnect, { withTimeout } from "@/lib/mongoose";
 import User from "@/models/User";
 import CarePlan from "@/models/CarePlan";
+import { getServerT, LanguageCode } from "@/translations";
 import CoordinatorDashboard from "@/components/CoordinatorDashboard";
 import CaregiverDashboard from "@/components/CaregiverDashboard";
 
 export default async function DashboardPage() {
   const session = await auth0.getSession();
   if (!session?.user) return null;
+
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as LanguageCode) || "en";
+  const t = getServerT(locale);
 
   let dbUser;
   try {
@@ -18,9 +24,9 @@ export default async function DashboardPage() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">Connection Error</h1>
-          <p className="text-slate-500 mb-4">Unable to load your dashboard. Please try again.</p>
-          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Retry</a>
+          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("connectionError")}</h1>
+          <p className="text-slate-500 mb-4">{t("unableToLoadDashboard")}</p>
+          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
         </div>
       </div>
     );
@@ -115,9 +121,9 @@ export default async function DashboardPage() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">Error Loading Plans</h1>
-          <p className="text-slate-500 mb-4">Something went wrong. Please try again.</p>
-          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Retry</a>
+          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("errorLoadingPlans")}</h1>
+          <p className="text-slate-500 mb-4">{t("somethingWentWrong")}</p>
+          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
         </div>
       </div>
     );

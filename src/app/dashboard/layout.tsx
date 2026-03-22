@@ -1,7 +1,9 @@
 import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import dbConnect, { withTimeout } from "@/lib/mongoose";
 import User from "@/models/User";
+import { getServerT, LanguageCode } from "@/translations";
 import DashboardHeader from "./DashboardHeader";
 
 export default async function DashboardLayout({
@@ -17,6 +19,10 @@ export default async function DashboardLayout({
   }
 
   // Progressive Profiling: Intercept users who haven't completed onboarding
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as LanguageCode) || "en";
+  const t = getServerT(locale);
+
   let dbUser;
   try {
     await withTimeout(dbConnect(), 8000);
@@ -26,9 +32,9 @@ export default async function DashboardLayout({
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-8">
         <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">Connection Error</h1>
-          <p className="text-slate-500 mb-4">Unable to reach the database. Please try again.</p>
-          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Retry</a>
+          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("connectionError")}</h1>
+          <p className="text-slate-500 mb-4">{t("unableToReachDatabase")}</p>
+          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
         </div>
       </div>
     );

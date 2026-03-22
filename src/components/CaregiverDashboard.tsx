@@ -109,7 +109,7 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
                     </span>
                   ) : (
                     <span className="text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full mt-2 inline-block">
-                      {t("linkedPlan") || "Linked Plan"}
+                      {t("linkedPlan")}
                     </span>
                   )}
                 </div>
@@ -120,7 +120,7 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
                 href={`/dashboard/plan/${plan._id}`}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
               >
-                {t("viewPlan") || "View Full Plan"} <ArrowRight size={16} />
+                {t("viewPlan")} <ArrowRight size={16} />
               </a>
             </div>
           </div>
