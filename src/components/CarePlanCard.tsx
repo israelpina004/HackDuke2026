@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/translations/LanguageContext";
-import { Pill, AlertTriangle, Heart, Building2, Phone, FileText, Image as ImageIcon, X, Copy, Check, Users, Loader2 } from "lucide-react";
+import { Pill, AlertTriangle, Heart, Building2, Phone, FileText, Image as ImageIcon, X, Copy, Check, Users, Loader2, Volume2 } from "lucide-react";
 
 interface ContactInfo {
   name?: string;
   phone?: string;
   facility?: string;
+}
+
+interface AudioErrorResponse {
+  error?: string;
 }
 
 export interface CarePlanData {
@@ -30,6 +34,10 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
   const { t, language } = useLanguage();
   const [showDocs, setShowDocs] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioError, setAudioError] = useState<string | null>(null);
+  const [generatingAudio, setGeneratingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Translation State
   const [translating, setTranslating] = useState(false);
@@ -76,7 +84,23 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       .catch(() => {})
       .finally(() => { if (!cancelled) setTranslating(false); });
     return () => { cancelled = true; };
-  }, [language, plan._id, plan.originalLanguage]);
+  }, [isEditing, language, plan._id, plan.originalLanguage]);
+
+  useEffect(() => {
+    if (!audioUrl || !audioRef.current) {
+      return;
+    }
+
+    audioRef.current.play().catch(() => {});
+  }, [audioUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   // Use translated data if available, otherwise original
   const meds = translated?.medications || plan.medications;
@@ -107,6 +131,43 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       alert("Error saving plan.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGenerateAudio = async () => {
+    setGeneratingAudio(true);
+    setAudioError(null);
+
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
+
+    try {
+      const response = await fetch("/api/generate-audio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: plan._id, language }),
+      });
+
+      if (!response.ok) {
+        let message = t("audioError");
+        try {
+          const payload = (await response.json()) as AudioErrorResponse;
+          if (payload?.error) {
+            message = payload.error;
+          }
+        } catch {}
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const nextAudioUrl = URL.createObjectURL(blob);
+      setAudioUrl(nextAudioUrl);
+    } catch (error: unknown) {
+      setAudioError(error instanceof Error ? error.message : t("audioError"));
+    } finally {
+      setGeneratingAudio(false);
     }
   };
 
@@ -166,6 +227,37 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
             </>
           )}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleGenerateAudio}
+            disabled={generatingAudio}
+            className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {generatingAudio ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Volume2 size={16} />
+            )}
+            {generatingAudio ? t("generatingAudio") : t("audioBriefing")}
+          </button>
+
+          {audioError && (
+            <p className="text-sm text-red-600">{audioError}</p>
+          )}
+        </div>
+
+        {audioUrl && (
+          <audio
+            ref={audioRef}
+            controls
+            preload="metadata"
+            src={audioUrl}
+            className="w-full max-w-xl"
+          />
+        )}
       </div>
 
       {/* Invite Code (for Coordinators) */}
