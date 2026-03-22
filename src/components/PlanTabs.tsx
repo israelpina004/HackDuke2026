@@ -28,7 +28,7 @@ export default function PlanTabs({
   ];
 
   return (
-    <nav className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+    <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', borderRadius: '1rem', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', padding: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
       {tabs.map((tab) => {
         const isActive = tab.key === activeTab;
 
@@ -36,11 +36,18 @@ export default function PlanTabs({
           <a
             key={tab.key}
             href={tab.href}
-            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-blue-600 text-white"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            }`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              borderRadius: '0.75rem',
+              padding: '0.5rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textDecoration: 'none',
+              backgroundColor: isActive ? '#0d9488' : 'transparent',
+              color: isActive ? '#ffffff' : '#475569',
+            }}
           >
             {tab.icon}
             {tab.label}

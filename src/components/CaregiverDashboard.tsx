@@ -54,18 +54,18 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Top Actions */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-slate-800">{t("welcome")}</h1>
-        <div className="flex items-center gap-3">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{t("welcome")}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <a
             href="/link"
-            className="inline-flex items-center gap-2 bg-white text-blue-600 font-semibold px-4 py-2.5 rounded-xl border border-blue-200 hover:bg-blue-50 transition-colors text-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#ffffff', color: '#0d9488', fontWeight: 600, padding: '0.625rem 1rem', borderRadius: '0.75rem', border: '1px solid #99f6e4', textDecoration: 'none', fontSize: '0.875rem' }}
           >
             {t("joinPlanBtn")} <ArrowRight size={16} />
           </a>
-          <label className="cursor-pointer inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors active:scale-[0.98] text-sm">
+          <label style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#0d9488', color: '#ffffff', fontWeight: 600, padding: '0.625rem 1rem', borderRadius: '0.75rem', fontSize: '0.875rem' }}>
             <Upload size={16} />
             {uploading ? t("uploading") : t("uploadDocs")}
             <input
@@ -73,7 +73,7 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
               type="file"
               accept=".pdf,.jpg,.jpeg,.png,.heic,image/*"
               multiple
-              className="hidden"
+              style={{ display: 'none' }}
               onChange={handleUpload}
               disabled={uploading}
             />
@@ -82,43 +82,43 @@ export default function CaregiverDashboard({ plans: initialPlans }: { plans: Car
       </div>
 
       {successMsg && (
-        <div className="bg-green-50 text-green-700 text-sm font-medium py-3 px-4 rounded-lg border border-green-100">
+        <div style={{ backgroundColor: '#f0fdf4', color: '#15803d', fontSize: '0.875rem', fontWeight: 500, padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #dcfce7' }}>
           {successMsg}
         </div>
       )}
 
       {/* Empty State */}
       {plans.length === 0 && (
-        <div className="flex flex-col items-center justify-center gap-6 py-20">
-          <ClipboardList className="h-16 w-16 text-slate-300" />
-          <p className="text-slate-500 text-lg text-center">{t("noPlansCaregiver")}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', paddingTop: '5rem', paddingBottom: '5rem' }}>
+          <ClipboardList style={{ height: '4rem', width: '4rem', color: '#cbd5e1' }} />
+          <p style={{ color: '#64748b', fontSize: '1.125rem', textAlign: 'center' }}>{t("noPlansCaregiver")}</p>
         </div>
       )}
 
       {/* Plans */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
         {plans.map((plan) => (
-          <div key={plan._id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-            <div className="p-5 flex-1 flex flex-col gap-4">
-              <div className="flex items-start justify-between">
+          <div key={plan._id} style={{ backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column', flex: '1 1 300px', minWidth: '280px', maxWidth: '420px' }}>
+            <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800 tracking-tight">{plan.patientName}</h3>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.025em' }}>{plan.patientName}</h3>
                   {plan.createdByRole === "Caregiver" ? (
-                    <span className="text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full mt-2 inline-block">
+                    <span style={{ fontSize: '0.75rem', fontWeight: 500, backgroundColor: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '0.125rem 0.5rem', borderRadius: '9999px', marginTop: '0.5rem', display: 'inline-block' }}>
                       {t("selfUploaded")}
                     </span>
                   ) : (
-                    <span className="text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full mt-2 inline-block">
+                    <span style={{ fontSize: '0.75rem', fontWeight: 500, backgroundColor: '#f0fdfa', color: '#0f766e', border: '1px solid #99f6e4', padding: '0.125rem 0.5rem', borderRadius: '9999px', marginTop: '0.5rem', display: 'inline-block' }}>
                       {t("linkedPlan")}
                     </span>
                   )}
                 </div>
               </div>
             </div>
-            <div className="bg-slate-50 border-t border-slate-100 p-3">
+            <div style={{ backgroundColor: '#f8fafc', borderTop: '1px solid #f1f5f9', padding: '0.75rem' }}>
               <a 
                 href={`/dashboard/plan/${plan._id}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', color: '#334155', fontWeight: 500, borderRadius: '0.5rem', fontSize: '0.875rem', textDecoration: 'none' }}
               >
                 {t("viewPlan")} <ArrowRight size={16} />
               </a>

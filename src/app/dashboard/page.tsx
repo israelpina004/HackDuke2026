@@ -22,11 +22,11 @@ export default async function DashboardPage() {
   } catch (e) {
     console.error('[DashboardPage] DB error:', (e as Error).message);
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("connectionError")}</h1>
-          <p className="text-slate-500 mb-4">{t("unableToLoadDashboard")}</p>
-          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ backgroundColor: '#ffffff', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', maxWidth: '28rem', border: '1px solid #e2e8f0' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>{t("connectionError")}</h1>
+          <p style={{ color: '#64748b', marginBottom: '1rem' }}>{t("unableToLoadDashboard")}</p>
+          <a href="/dashboard" style={{ display: 'inline-block', backgroundColor: '#0d9488', color: '#ffffff', padding: '0.5rem 1rem', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 500 }}>{t("retry")}</a>
         </div>
       </div>
     );
@@ -119,11 +119,11 @@ export default async function DashboardPage() {
   } catch (e) {
     console.error('[DashboardPage] query error:', (e as Error).message);
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("errorLoadingPlans")}</h1>
-          <p className="text-slate-500 mb-4">{t("somethingWentWrong")}</p>
-          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ backgroundColor: '#ffffff', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', maxWidth: '28rem', border: '1px solid #e2e8f0' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>{t("errorLoadingPlans")}</h1>
+          <p style={{ color: '#64748b', marginBottom: '1rem' }}>{t("somethingWentWrong")}</p>
+          <a href="/dashboard" style={{ display: 'inline-block', backgroundColor: '#0d9488', color: '#ffffff', padding: '0.5rem 1rem', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 500 }}>{t("retry")}</a>
         </div>
       </div>
     );

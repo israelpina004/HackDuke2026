@@ -63,14 +63,14 @@ export default async function PlanPage({
   } catch (e) {
     console.error('[PlanPage] DB error:', (e as Error).message);
     return (
-      <div className="w-full mx-auto space-y-6 p-8">
-        <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+      <div style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', padding: '2rem' }}>
+        <a href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#64748b', textDecoration: 'none', marginBottom: '1.5rem' }}>
           <ArrowLeft size={16} /> {t("backToDashboard")}
         </a>
-        <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("connectionError")}</h1>
-          <p className="text-slate-500 mb-4">{t("unableToLoadPlan")}</p>
-          <a href={`/dashboard/plan/${planId}`} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
+        <div style={{ backgroundColor: '#ffffff', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>{t("connectionError")}</h1>
+          <p style={{ color: '#64748b', marginBottom: '1rem' }}>{t("unableToLoadPlan")}</p>
+          <a href={`/dashboard/plan/${planId}`} style={{ display: 'inline-block', backgroundColor: '#0d9488', color: '#ffffff', padding: '0.5rem 1rem', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 500 }}>{t("retry")}</a>
         </div>
       </div>
     );
@@ -110,10 +110,10 @@ export default async function PlanPage({
   };
 
   return (
-    <div className="w-full mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <a 
         href="/dashboard"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#64748b', textDecoration: 'none' }}
       >
         <ArrowLeft size={16} /> {t("backToDashboard")}
       </a>

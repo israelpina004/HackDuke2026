@@ -30,11 +30,11 @@ export default async function DashboardLayout({
   } catch (e) {
     console.error('[DashboardLayout] DB error:', (e as Error).message);
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-8">
-        <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md">
-          <h1 className="text-xl font-bold text-slate-800 mb-2">{t("connectionError")}</h1>
-          <p className="text-slate-500 mb-4">{t("unableToReachDatabase")}</p>
-          <a href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">{t("retry")}</a>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ backgroundColor: '#ffffff', padding: '2rem', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '28rem', border: '1px solid #e2e8f0' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>{t("connectionError")}</h1>
+          <p style={{ color: '#64748b', marginBottom: '1rem' }}>{t("unableToReachDatabase")}</p>
+          <a href="/dashboard" style={{ display: 'inline-block', backgroundColor: '#0d9488', color: '#ffffff', padding: '0.5rem 1rem', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 500 }}>{t("retry")}</a>
         </div>
       </div>
     );
@@ -45,9 +45,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
       <DashboardHeader userName={session.user.name || session.user.email || "Caregiver"} />
-      <main className="flex-1 flex flex-col p-6 w-full mx-auto max-w-[1600px]">
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5rem', width: '100%', maxWidth: '100rem', marginLeft: 'auto', marginRight: 'auto' }}>
         {children}
       </main>
     </div>

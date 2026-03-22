@@ -305,30 +305,30 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-slate-800">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>
             {t("patient")}: {isEditing ? (
               <input
                 value={editData.patientName}
                 onChange={(event) => setEditData({ ...editData, patientName: event.target.value })}
-                className="ml-2 appearance-none border-2 border-slate-300 rounded px-2 py-1 text-base font-semibold w-56 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+                style={{ marginLeft: '0.5rem', appearance: 'none', border: '2px solid #cbd5e1', borderRadius: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '1rem', fontWeight: 600, width: '14rem', color: '#0f172a', backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
               />
             ) : plan.patientName}
           </h2>
           {plan.createdByRole === "Caregiver" && (
-            <span className="text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+            <span style={{ fontSize: '0.75rem', fontWeight: 500, backgroundColor: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '0.125rem 0.5rem', borderRadius: '9999px' }}>
               {t("selfUploaded")}
             </span>
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           {!isEditing && (
             <a
               href={`/dashboard/plan/${plan._id}/messages`}
-              className="text-sm font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors"
+              style={{ fontSize: '0.875rem', fontWeight: 500, color: '#334155', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '0.375rem 0.75rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}
             >
               <MessageSquare size={16} />
               {t("openMessages")}
@@ -337,7 +337,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
           {plan.documents?.length > 0 && !isEditing && (
             <button
               onClick={() => setShowDocs(true)}
-              className="text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors"
+              style={{ fontSize: '0.875rem', fontWeight: 500, color: '#0f766e', backgroundColor: '#f0fdfa', border: '1px solid #99f6e4', padding: '0.375rem 0.75rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
             >
               <FileText size={16} /> {t("viewDocuments")} ({plan.documents.length})
             </button>
@@ -348,7 +348,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                 setEditData(plan);
                 setIsEditing(true);
               }}
-              className="text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-1.5 rounded-lg transition-colors"
+              style={{ fontSize: '0.875rem', fontWeight: 500, color: '#0d9488', backgroundColor: '#f0fdfa', border: '1px solid #99f6e4', padding: '0.375rem 1rem', borderRadius: '0.5rem', cursor: 'pointer' }}
             >
               {t("editPlan")}
             </button>
@@ -357,14 +357,14 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
             <>
               <button
                 onClick={() => setIsEditing(false)}
-                className="text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-4 py-1.5 rounded-lg transition-colors"
+                style={{ fontSize: '0.875rem', fontWeight: 500, color: '#475569', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', padding: '0.375rem 1rem', borderRadius: '0.5rem', cursor: 'pointer' }}
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                style={{ fontSize: '0.875rem', fontWeight: 500, color: '#ffffff', backgroundColor: '#0d9488', padding: '0.375rem 1rem', borderRadius: '0.5rem', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.5 : 1 }}
               >
                 {saving ? "..." : t("savePlan")}
               </button>
@@ -373,39 +373,39 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex flex-wrap items-center gap-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRadius: '1rem', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', padding: '1rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
           <button
             onClick={handleGenerateAudio}
             disabled={generatingAudio}
-            className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '0.5rem', border: '1px solid #99f6e4', backgroundColor: '#f0fdfa', padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: '#0f766e', cursor: generatingAudio ? 'not-allowed' : 'pointer', opacity: generatingAudio ? 0.6 : 1 }}
           >
-            {generatingAudio ? <Loader2 size={16} className="animate-spin" /> : <Volume2 size={16} />}
+            {generatingAudio ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Volume2 size={16} />}
             {generatingAudio ? t("generatingAudio") : t("audioBriefing")}
           </button>
 
-          {audioError && <p className="text-sm text-red-600">{audioError}</p>}
+          {audioError && <p style={{ fontSize: '0.875rem', color: '#dc2626' }}>{audioError}</p>}
         </div>
 
-        {audioUrl && <audio ref={audioRef} controls preload="metadata" src={audioUrl} className="w-full max-w-xl" />}
+        {audioUrl && <audio ref={audioRef} controls preload="metadata" src={audioUrl} style={{ width: '100%', maxWidth: '36rem' }} />}
       </div>
 
       {plan.inviteCode && (
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{t("inviteCodeLabel")}:</span>
-            <code className="font-mono font-bold text-blue-600 tracking-widest text-sm bg-white px-2 py-1 rounded border border-slate-200">
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t("inviteCodeLabel")}:</span>
+            <code style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0d9488', letterSpacing: '0.1em', fontSize: '0.875rem', backgroundColor: '#ffffff', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', border: '1px solid #e2e8f0' }}>
               {plan.inviteCode}
             </code>
             <button
               onClick={() => plan.inviteCode && copyCode(plan.inviteCode)}
-              className="text-slate-400 hover:text-blue-600 transition-colors ml-2"
+              style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', marginLeft: '0.5rem' }}
               title="Copy"
             >
-              {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+              {copied ? <Check size={16} style={{ color: '#22c55e' }} /> : <Copy size={16} />}
             </button>
           </div>
-          <div className="flex items-center gap-1 text-sm text-slate-500">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', color: '#64748b' }}>
             <Users size={14} />
             <span>{plan.caregiverIds?.length || 0} {t("caregiversLabel")}</span>
           </div>
@@ -415,31 +415,31 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
       {plan.createdByRole === "Caregiver" && plan.contactInfo && <ContactCard contactInfo={plan.contactInfo} t={t} />}
 
           <SectionCard
-            accent="border-t-blue-500"
-            icon={<Pill size={18} className="text-blue-500" />}
+            accentColor="#0d9488"
+            icon={<Pill size={18} style={{ color: '#0d9488' }} />}
             title={t("medications")}
             translating={translating}
             isEditing={isEditing}
             canExplain={meds.length > 0}
             onExplain={() => handleExplainSection("medications")}
             explanation={explanations.medications}
-            explainButtonClassName="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+            explainButtonStyle={{ borderColor: '#99f6e4', backgroundColor: '#f0fdfa', color: '#0f766e' }}
             explainLabel={t("explainElaborate")}
             addButton={isEditing ? (
               <button
                 onClick={() => setEditData({ ...editData, medications: [...editData.medications, { name: "", dosage: "", frequency: "", confidence: "High" }] })}
-                className="text-xs text-blue-600 font-medium hover:underline"
+                style={{ fontSize: '0.75rem', color: '#0d9488', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
               >
                 {t("addItem")}
               </button>
             ) : null}
           >
             {isEditing ? (
-              <ul className="space-y-3">
+              <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', listStyle: 'none', margin: 0, padding: 0 }}>
                 {editData.medications.map((medication, index) => (
-                  <li key={index} className="flex flex-wrap gap-2 items-start border-b border-slate-100 pb-3">
+                  <li key={index} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'flex-start', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
                     <input
-                      className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium flex-1 min-w-30 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+                      style={{ appearance: 'none', border: '2px solid #cbd5e1', borderRadius: '0.25rem', padding: '0.25rem 0.375rem', fontSize: '0.875rem', fontWeight: 500, flex: '1 1 7.5rem', color: '#0f172a', backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                       value={medication.name}
                       onChange={(event) => {
                         const medications = [...editData.medications];
@@ -449,7 +449,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                       placeholder={t("medNamePlaceholder")}
                     />
                     <input
-                      className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium w-24 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+                      style={{ appearance: 'none', border: '2px solid #cbd5e1', borderRadius: '0.25rem', padding: '0.25rem 0.375rem', fontSize: '0.875rem', fontWeight: 500, width: '6rem', color: '#0f172a', backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                       value={medication.dosage}
                       onChange={(event) => {
                         const medications = [...editData.medications];
@@ -459,7 +459,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                       placeholder={t("dosagePlaceholder")}
                     />
                     <input
-                      className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium w-32 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+                      style={{ appearance: 'none', border: '2px solid #cbd5e1', borderRadius: '0.25rem', padding: '0.25rem 0.375rem', fontSize: '0.875rem', fontWeight: 500, width: '8rem', color: '#0f172a', backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                       value={medication.frequency}
                       onChange={(event) => {
                         const medications = [...editData.medications];
@@ -474,7 +474,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                         medications.splice(index, 1);
                         setEditData({ ...editData, medications });
                       }}
-                      className="text-red-500 hover:text-red-700 p-1"
+                      style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem' }}
                     >
                       <X size={16} />
                     </button>
@@ -482,16 +482,16 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                 ))}
               </ul>
             ) : meds.length === 0 ? (
-              <p className="text-sm text-slate-400">—</p>
+              <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>\u2014</p>
             ) : (
-              <ul className="space-y-2">
+              <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
                 {meds.map((medication, index) => (
-                  <li key={index} className="flex gap-4 items-start justify-between text-sm">
-                    <div className="flex-1 wrap-break-word">
-                      <span className="font-bold text-slate-900 text-base">{medication.name}</span>
-                      <span className="text-slate-600 font-medium ml-2 inline-block">{medication.dosage} · {medication.frequency}</span>
+                  <li key={index} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                    <div style={{ flex: '1 1 0%', overflowWrap: 'break-word' }}>
+                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '1rem' }}>{medication.name}</span>
+                      <span style={{ color: '#475569', fontWeight: 500, marginLeft: '0.5rem', display: 'inline-block' }}>{medication.dosage} \u00b7 {medication.frequency}</span>
                     </div>
-                    <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
+                    <div style={{ flexShrink: 0, marginTop: '0.125rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
                       <ConfidenceBadge level={medication.confidence} t={t} />
                       {canRequestClarification && medication.confidence !== "High" && (
                         <button
@@ -503,7 +503,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                               summary: `${medication.name} ${medication.dosage} ${medication.frequency}`.trim(),
                             })
                           }
-                          className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                          style={{ fontSize: '0.75rem', fontWeight: 500, color: '#0d9488', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                         >
                           {t("reviewThisItem")}
                         </button>
@@ -517,30 +517,30 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
 
           {(flags.length > 0 || isEditing) && (
             <SectionCard
-              accent="border-t-red-500"
-              icon={<AlertTriangle size={18} className="text-red-500" />}
+              accentColor="#ef4444"
+              icon={<AlertTriangle size={18} style={{ color: '#ef4444' }} />}
               title={t("redFlags")}
               isEditing={isEditing}
               canExplain={flags.length > 0}
               onExplain={() => handleExplainSection("redFlags")}
               explanation={explanations.redFlags}
-              explainButtonClassName="border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+              explainButtonStyle={{ borderColor: '#fecaca', backgroundColor: '#fef2f2', color: '#b91c1c' }}
               explainLabel={t("explainElaborate")}
               addButton={isEditing ? (
                 <button
                   onClick={() => setEditData({ ...editData, redFlags: [...editData.redFlags, { issue: "", confidence: "High" }] })}
-                  className="text-xs text-red-600 font-medium hover:underline"
+                  style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                 >
                   {t("addItem")}
                 </button>
               ) : null}
             >
               {isEditing ? (
-                <ul className="space-y-3">
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', listStyle: 'none', margin: 0, padding: 0 }}>
                   {editData.redFlags.map((flag, index) => (
-                    <li key={index} className="flex gap-2 items-start">
+                    <li key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                       <input
-                        className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium flex-1 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+                        style={{ appearance: 'none', border: '2px solid #cbd5e1', borderRadius: '0.25rem', padding: '0.25rem 0.375rem', fontSize: '0.875rem', fontWeight: 500, flex: '1 1 0%', color: '#0f172a', backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                         value={flag.issue}
                         onChange={(event) => {
                           const redFlags = [...editData.redFlags];
@@ -554,7 +554,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                           redFlags.splice(index, 1);
                           setEditData({ ...editData, redFlags });
                         }}
-                        className="text-red-500 hover:text-red-700 p-1"
+                        style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem' }}
                       >
                         <X size={16} />
                       </button>
@@ -562,11 +562,11 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                   ))}
                 </ul>
               ) : (
-                <ul className="space-y-2">
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
                   {flags.map((flag, index) => (
-                    <li key={index} className="flex gap-4 items-start justify-between text-sm">
-                      <span className="font-semibold text-slate-900 block text-base flex-1 wrap-break-word">{flag.issue}</span>
-                      <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
+                    <li key={index} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                      <span style={{ fontWeight: 600, color: '#0f172a', display: 'block', fontSize: '1rem', flex: '1 1 0%', overflowWrap: 'break-word' }}>{flag.issue}</span>
+                      <div style={{ flexShrink: 0, marginTop: '0.125rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
                         <ConfidenceBadge level={flag.confidence} t={t} />
                         {canRequestClarification && flag.confidence !== "High" && (
                           <button
@@ -578,7 +578,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                                 summary: flag.issue,
                               })
                             }
-                            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                            style={{ fontSize: '0.75rem', fontWeight: 500, color: '#0d9488', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                           >
                             {t("reviewThisItem")}
                           </button>
@@ -593,30 +593,30 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
 
           {(instructions.length > 0 || isEditing) && (
             <SectionCard
-              accent="border-t-green-500"
-              icon={<Heart size={18} className="text-green-500" />}
+              accentColor="#16a34a"
+              icon={<Heart size={18} style={{ color: '#16a34a' }} />}
               title={t("careInstructions")}
               isEditing={isEditing}
               canExplain={instructions.length > 0}
               onExplain={() => handleExplainSection("careInstructions")}
               explanation={explanations.careInstructions}
-              explainButtonClassName="border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+              explainButtonStyle={{ borderColor: '#dcfce7', backgroundColor: '#f0fdf4', color: '#15803d' }}
               explainLabel={t("explainElaborate")}
               addButton={isEditing ? (
                 <button
                   onClick={() => setEditData({ ...editData, careInstructions: [...editData.careInstructions, { instruction: "", confidence: "High" }] })}
-                  className="text-xs text-green-600 font-medium hover:underline"
+                  style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                 >
                   {t("addItem")}
                 </button>
               ) : null}
             >
               {isEditing ? (
-                <ul className="space-y-3">
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', listStyle: 'none', margin: 0, padding: 0 }}>
                   {editData.careInstructions.map((instruction, index) => (
-                    <li key={index} className="flex gap-2 items-start">
+                    <li key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                       <textarea
-                        className="appearance-none border-2 border-slate-300 rounded px-2 py-1.5 text-sm font-medium flex-1 min-h-15 text-slate-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none placeholder:text-slate-400"
+                        style={{ appearance: 'none', border: '2px solid #cbd5e1', borderRadius: '0.25rem', padding: '0.25rem 0.375rem', fontSize: '0.875rem', fontWeight: 500, flex: '1 1 0%', minHeight: '3.75rem', color: '#0f172a', backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                         value={instruction.instruction}
                         onChange={(event) => {
                           const careInstructions = [...editData.careInstructions];
@@ -630,7 +630,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                           careInstructions.splice(index, 1);
                           setEditData({ ...editData, careInstructions });
                         }}
-                        className="text-red-500 hover:text-red-700 p-1 mt-1"
+                        style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', marginTop: '0.25rem' }}
                       >
                         <X size={16} />
                       </button>
@@ -638,11 +638,11 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                   ))}
                 </ul>
               ) : (
-                <ul className="space-y-2">
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
                   {instructions.map((instruction, index) => (
-                    <li key={index} className="flex gap-4 items-start justify-between text-sm">
-                      <span className="font-semibold text-slate-900 block text-base flex-1 wrap-break-word">{instruction.instruction}</span>
-                      <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
+                    <li key={index} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                      <span style={{ fontWeight: 600, color: '#0f172a', display: 'block', fontSize: '1rem', flex: '1 1 0%', overflowWrap: 'break-word' }}>{instruction.instruction}</span>
+                      <div style={{ flexShrink: 0, marginTop: '0.125rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
                         <ConfidenceBadge level={instruction.confidence} t={t} />
                         {canRequestClarification && instruction.confidence !== "High" && (
                           <button
@@ -654,7 +654,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
                                 summary: instruction.instruction,
                               })
                             }
-                            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                            style={{ fontSize: '0.75rem', fontWeight: 500, color: '#0d9488', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                           >
                             {t("reviewThisItem")}
                           </button>
@@ -668,54 +668,54 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
           )}
 
           {(plan.notes || isEditing) && (
-            <div className="bg-amber-50 rounded-2xl shadow-sm border border-amber-200 p-5 mb-4">
-              <h3 className="font-semibold text-amber-900 mb-3">{t("notesTitle")}</h3>
+            <div style={{ backgroundColor: '#fffbeb', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #fde68a', padding: '1.25rem', marginBottom: '1rem' }}>
+              <h3 style={{ fontWeight: 600, color: '#78350f', marginBottom: '0.75rem' }}>{t("notesTitle")}</h3>
               {isEditing ? (
                 <textarea
-                  className="appearance-none w-full bg-white border-2 border-amber-300 rounded-xl p-3 text-sm font-medium focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 min-h-30 text-slate-900 shadow-sm placeholder:text-amber-700/50"
+                  style={{ appearance: 'none', width: '100%', backgroundColor: '#ffffff', border: '2px solid #fcd34d', borderRadius: '0.75rem', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, minHeight: '7.5rem', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                   value={editData.notes || ""}
                   onChange={(event) => setEditData({ ...editData, notes: event.target.value })}
                   placeholder={t("notesPlaceholder")}
                 />
               ) : (
-                <div className="text-sm text-amber-800 whitespace-pre-wrap">{plan.notes}</div>
+                <div style={{ fontSize: '0.875rem', color: '#92400e', whiteSpace: 'pre-wrap' }}>{plan.notes}</div>
               )}
             </div>
           )}
 
       {showDocs && (
-        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl flex flex-col max-h-full">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200">
-              <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                <FileText size={20} className="text-blue-600" /> {t("viewDocuments")}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, backgroundColor: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', width: '100%', maxWidth: '64rem', display: 'flex', flexDirection: 'column', maxHeight: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
+              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FileText size={20} style={{ color: '#0d9488' }} /> {t("viewDocuments")}
               </h3>
               <button
                 onClick={() => setShowDocs(false)}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                style={{ padding: '0.5rem', color: '#94a3b8', background: 'none', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }}
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50 flex flex-col gap-8">
+            <div style={{ flex: '1 1 0%', overflowY: 'auto', padding: '1rem', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               {plan.documents.map((doc, index) => (
-                <div key={index} className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                <div key={index} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: '#475569' }}>
                     {doc.mimeType.startsWith("image/") ? <ImageIcon size={16} /> : <FileText size={16} />}
                     {t("document")} {index + 1}
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex items-center justify-center min-h-75">
+                  <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '18.75rem' }}>
                     {doc.mimeType.startsWith("image/") ? (
                       <img
                         src={`/api/documents/${plan._id}/${index}`}
                         alt={`${t("document")} ${index + 1}`}
-                        className="max-w-full h-auto object-contain"
+                        style={{ maxWidth: '100%', height: 'auto', objectFit: 'contain' }}
                       />
                     ) : (
                       <iframe
                         src={`/api/documents/${plan._id}/${index}`}
-                        className="w-full h-[70vh] border-0"
+                        style={{ width: '100%', height: '70vh', border: 'none' }}
                         title={`${t("document")} ${index + 1}`}
                       />
                     )}
@@ -749,7 +749,7 @@ export default function CarePlanCard({ plan, currentUserId }: { plan: CarePlanDa
 }
 
 function SectionCard({
-  accent,
+  accentColor,
   icon,
   title,
   translating,
@@ -757,12 +757,12 @@ function SectionCard({
   canExplain,
   onExplain,
   explanation,
-  explainButtonClassName,
+  explainButtonStyle,
   explainLabel,
   addButton,
   children,
 }: {
-  accent: string;
+  accentColor: string;
   icon: ReactNode;
   title: string;
   translating?: boolean;
@@ -770,26 +770,26 @@ function SectionCard({
   canExplain: boolean;
   onExplain: () => void;
   explanation: ExplanationState;
-  explainButtonClassName: string;
+  explainButtonStyle: Record<string, string>;
   explainLabel: string;
   addButton?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 border-t-4 ${accent} p-5`}>
-      <div className="flex items-center justify-between mb-3 gap-3">
-        <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+    <div style={{ backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', borderTop: `4px solid ${accentColor}`, padding: '1.25rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', gap: '0.75rem' }}>
+        <h3 style={{ fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {icon} {title}
-          {translating && <Loader2 size={14} className="animate-spin text-slate-400" />}
+          {translating && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite', color: '#94a3b8' }} />}
         </h3>
-        <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {!isEditing && (
             <button
               onClick={onExplain}
               disabled={explanation.loading || !canExplain}
-              className={`inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${explainButtonClassName}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', borderRadius: '0.5rem', border: '1px solid', padding: '0.375rem 0.75rem', fontSize: '0.75rem', fontWeight: 500, cursor: explanation.loading || !canExplain ? 'not-allowed' : 'pointer', opacity: explanation.loading || !canExplain ? 0.6 : 1, ...explainButtonStyle }}
             >
-              {explanation.loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {explanation.loading ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={14} />}
               {explainLabel}
             </button>
           )}
@@ -810,16 +810,16 @@ function ExplanationPanel({ explanation }: { explanation: ExplanationState }) {
   }
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <div style={{ marginTop: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', padding: '1rem' }}>
       {explanation.loading && (
-        <p className="flex items-center gap-2 text-sm text-slate-600">
-          <Loader2 size={14} className="animate-spin" />
+        <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#475569' }}>
+          <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
           {t("generatingExplanation")}
         </p>
       )}
-      {explanation.error && !explanation.loading && <p className="text-sm text-red-600">{explanation.error}</p>}
+      {explanation.error && !explanation.loading && <p style={{ fontSize: '0.875rem', color: '#dc2626' }}>{explanation.error}</p>}
       {explanation.text && !explanation.loading && (
-        <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">{explanation.text}</p>
+        <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{explanation.text}</p>
       )}
     </div>
   );
@@ -828,24 +828,24 @@ function ExplanationPanel({ explanation }: { explanation: ExplanationState }) {
 function ContactCard({ contactInfo, t }: { contactInfo: ContactInfo; t: (key: string) => string }) {
   const hasInfo = contactInfo.name || contactInfo.phone || contactInfo.facility;
   if (!hasInfo) {
-    return <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">{t("noCoordinator")}</div>;
+    return <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '0.75rem', padding: '1rem', fontSize: '0.875rem', color: '#b45309' }}>{t("noCoordinator")}</div>;
   }
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-wrap gap-4 text-sm">
+    <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', fontSize: '0.875rem' }}>
       {contactInfo.facility && (
-        <div className="flex items-center gap-2 text-slate-600">
-          <Building2 size={14} className="text-slate-400" />
-          <span className="font-medium">{t("facility")}:</span> {contactInfo.facility}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+          <Building2 size={14} style={{ color: '#94a3b8' }} />
+          <span style={{ fontWeight: 500 }}>{t("facility")}:</span> {contactInfo.facility}
         </div>
       )}
       {contactInfo.name && (
-        <div className="flex items-center gap-2 text-slate-600">
-          <span className="font-medium">{t("contactDoctor")}:</span> {contactInfo.name}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+          <span style={{ fontWeight: 500 }}>{t("contactDoctor")}:</span> {contactInfo.name}
         </div>
       )}
       {contactInfo.phone && (
-        <a href={`tel:${contactInfo.phone}`} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
+        <a href={`tel:${contactInfo.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0d9488', fontWeight: 500, textDecoration: 'none' }}>
           <Phone size={14} /> {contactInfo.phone}
         </a>
       )}
@@ -854,10 +854,10 @@ function ContactCard({ contactInfo, t }: { contactInfo: ContactInfo; t: (key: st
 }
 
 function ConfidenceBadge({ level, t }: { level: string; t: (key: string) => string }) {
-  const styles: Record<string, string> = {
-    High: "bg-green-50 text-green-700 border-green-200",
-    Medium: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    Low: "bg-red-50 text-red-700 border-red-200",
+  const badgeStyles: Record<string, Record<string, string>> = {
+    High: { backgroundColor: '#f0fdf4', color: '#15803d', borderColor: '#dcfce7' },
+    Medium: { backgroundColor: '#fffbeb', color: '#b45309', borderColor: '#fde68a' },
+    Low: { backgroundColor: '#fef2f2', color: '#dc2626', borderColor: '#fecaca' },
   };
   const keys: Record<string, string> = {
     High: "highConfidence",
@@ -865,7 +865,7 @@ function ConfidenceBadge({ level, t }: { level: string; t: (key: string) => stri
     Low: "lowConfidence",
   };
   return (
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border whitespace-nowrap ${styles[level] || styles.High}`}>
+    <span style={{ fontSize: '0.75rem', fontWeight: 500, padding: '0.125rem 0.5rem', borderRadius: '9999px', border: '1px solid', whiteSpace: 'nowrap', ...(badgeStyles[level] || badgeStyles.High) }}>
       {t(keys[level] || "highConfidence")}
     </span>
   );
@@ -905,63 +905,63 @@ function UncertaintyResolutionModal({
   t: (key: string) => string;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(15,23,42,0.7)', padding: '1rem', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
+      <div style={{ width: '100%', maxWidth: '42rem', borderRadius: '1.5rem', backgroundColor: '#ffffff', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', borderBottom: '1px solid #e2e8f0', padding: '1.25rem 1.5rem' }}>
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+            <div style={{ marginBottom: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '9999px', border: '1px solid #fde68a', backgroundColor: '#fffbeb', padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 500, color: '#b45309' }}>
               <AlertTriangle size={14} />
               {t("confidenceNeedsReview")}
             </div>
-            <h3 className="text-lg font-semibold text-slate-900">{t("uncertaintyModalTitle")}</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{t("uncertaintyModalBody")}</p>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a' }}>{t("uncertaintyModalTitle")}</h3>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', lineHeight: '1.5rem', color: '#475569' }}>{t("uncertaintyModalBody")}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+            style={{ borderRadius: '0.5rem', padding: '0.5rem', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="space-y-5 px-6 py-5">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '1.25rem 1.5rem' }}>
+          <div style={{ borderRadius: '1rem', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', padding: '1rem' }}>
+            <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#334155' }}>
               <span>{t("uncertaintyItemLabel")}</span>
               <ConfidenceBadge level={item.confidence} t={t} />
             </div>
-            <p className="text-sm leading-6 text-slate-700">
-              <span className="font-semibold text-slate-900">{item.sectionLabel}:</span> {item.summary}
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.5rem', color: '#334155' }}>
+              <span style={{ fontWeight: 600, color: '#0f172a' }}>{item.sectionLabel}:</span> {item.summary}
             </p>
           </div>
 
-            <p className="text-xs text-slate-500">{t("translateToEnglishHint")}</p>
+            <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t("translateToEnglishHint")}</p>
           {canMessageCoordinator ? (
             <>
-              <label className="block text-sm font-medium text-slate-700">{t("clarificationMessageLabel")}</label>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#334155' }}>{t("clarificationMessageLabel")}</label>
               <textarea
                 value={draft}
                 onChange={(event) => onDraftChange(event.target.value)}
                 rows={5}
                 placeholder={t("clarificationPlaceholder")}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none"
+                style={{ width: '100%', borderRadius: '1rem', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
               />
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              {success && <p className="text-sm text-green-600">{t("clarificationSent")}</p>}
+              {error && <p style={{ fontSize: '0.875rem', color: '#dc2626' }}>{error}</p>}
+              {success && <p style={{ fontSize: '0.875rem', color: '#16a34a' }}>{t("clarificationSent")}</p>}
             </>
           ) : (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            <div style={{ borderRadius: '1rem', border: '1px solid #fde68a', backgroundColor: '#fffbeb', padding: '1rem', fontSize: '0.875rem', color: '#92400e' }}>
               {t("noCoordinatorAvailable")}
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid #e2e8f0', padding: '1rem 1.5rem' }}>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+            style={{ borderRadius: '0.75rem', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: '#334155', cursor: 'pointer' }}
           >
             {t("cancel")}
           </button>
@@ -970,9 +970,9 @@ function UncertaintyResolutionModal({
               type="button"
               onClick={onSend}
               disabled={sending || !draft.trim()}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '0.75rem', backgroundColor: sending || !draft.trim() ? '#99f6e4' : '#0d9488', padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: '#ffffff', border: 'none', cursor: sending || !draft.trim() ? 'not-allowed' : 'pointer' }}
             >
-              {sending ? <Loader2 size={16} className="animate-spin" /> : <MessageSquare size={16} />}
+              {sending ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <MessageSquare size={16} />}
               {sending ? t("sendingMessage") : t("askCoordinator")}
             </button>
           )}

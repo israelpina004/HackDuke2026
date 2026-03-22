@@ -56,11 +56,11 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Upload Button */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">{t("yourPlans")}</h1>
-        <label className="cursor-pointer inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors active:scale-[0.98]">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{t("yourPlans")}</h1>
+        <label style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#0d9488', color: '#ffffff', fontWeight: 600, padding: '0.625rem 1.25rem', borderRadius: '0.75rem', fontSize: '0.875rem' }}>
           <Upload size={18} />
           {uploading ? t("uploading") : t("createPlan")}
           <input
@@ -68,7 +68,7 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
             type="file"
             accept=".pdf,.jpg,.jpeg,.png,.heic,image/*"
             multiple
-            className="hidden"
+            style={{ display: 'none' }}
             onChange={handleUpload}
             disabled={uploading}
           />
@@ -76,47 +76,47 @@ export default function CoordinatorDashboard({ plans: initialPlans }: { plans: C
       </div>
 
       {successMsg && (
-        <div className="bg-green-50 text-green-700 text-sm font-medium py-3 px-4 rounded-lg border border-green-100">
+        <div style={{ backgroundColor: '#f0fdf4', color: '#15803d', fontSize: '0.875rem', fontWeight: 500, padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #dcfce7' }}>
           {successMsg}
         </div>
       )}
 
       {/* Plans List */}
       {plans.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center">
-          <FileText className="mx-auto h-12 w-12 text-slate-300 mb-4" />
-          <p className="text-slate-500">{t("noPlansCoord")}</p>
+        <div style={{ backgroundColor: '#ffffff', padding: '3rem', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <FileText style={{ marginLeft: 'auto', marginRight: 'auto', height: '3rem', width: '3rem', color: '#cbd5e1', marginBottom: '1rem' }} />
+          <p style={{ color: '#64748b' }}>{t("noPlansCoord")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
           {plans.map((plan) => (
-            <div key={plan._id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-              <div className="p-5 flex-1 flex flex-col gap-4">
-                <div className="flex items-start justify-between">
+            <div key={plan._id} style={{ backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column', flex: '1 1 300px', minWidth: '280px', maxWidth: '420px' }}>
+              <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-800 tracking-tight">{plan.patientName}</h3>
-                    <p className="text-sm text-slate-500 flex items-center gap-1 mt-1">
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.025em' }}>{plan.patientName}</h3>
+                    <p style={{ fontSize: '0.875rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
                       <Users size={14} /> {plan.caregiverIds?.length || 0} {t("caregiversConnected")}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 mt-auto">
-                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{t("inviteCodeLabel")}:</span>
-                  <code className="font-mono font-bold text-blue-600 tracking-widest text-sm flex-1">{plan.inviteCode}</code>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', border: '1px solid #f1f5f9', marginTop: 'auto' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t("inviteCodeLabel")}:</span>
+                  <code style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0d9488', letterSpacing: '0.1em', fontSize: '0.875rem', flex: 1 }}>{plan.inviteCode}</code>
                   <button
                     onClick={(e) => { e.preventDefault(); plan.inviteCode && copyCode(plan.inviteCode, plan._id); }}
-                    className="text-slate-400 hover:text-blue-600 transition-colors"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '0.25rem' }}
                   >
-                    {copiedId === plan._id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                    {copiedId === plan._id ? <Check size={16} style={{ color: '#22c55e' }} /> : <Copy size={16} />}
                   </button>
                 </div>
               </div>
               
-              <div className="bg-slate-50 border-t border-slate-100 p-3">
+              <div style={{ backgroundColor: '#f8fafc', borderTop: '1px solid #f1f5f9', padding: '0.75rem' }}>
                 <a 
                   href={`/dashboard/plan/${plan._id}`}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', color: '#334155', fontWeight: 500, borderRadius: '0.5rem', fontSize: '0.875rem', textDecoration: 'none' }}
                 >
                   {t("viewPlan")} <ArrowRight size={16} />
                 </a>

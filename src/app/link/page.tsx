@@ -42,79 +42,81 @@ export default function LinkCaregiverPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f8fafc' }}>
       <AppHeader />
 
-      <div className="w-full max-w-md space-y-6">
-        <a
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
-        >
-          <ArrowLeft size={16} /> {t("backToDashboard")}
-        </a>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+        <div style={{ width: '100%', maxWidth: '28rem' }}>
+          <a
+            href="/dashboard"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#64748b', textDecoration: 'none', marginBottom: '1.5rem' }}
+          >
+            <ArrowLeft size={16} /> {t("backToDashboard")}
+          </a>
 
-        <div className="bg-white p-10 rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-100 relative overflow-hidden">
-          {/* Decorative background element */}
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 rounded-full bg-blue-50 blur-3xl"></div>
+          <div style={{ backgroundColor: '#ffffff', padding: '2.5rem', borderRadius: '1.5rem', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.06)', border: '1px solid #f1f5f9', position: 'relative', overflow: 'hidden' }}>
+            {/* Decorative background element */}
+            <div style={{ position: 'absolute', top: 0, right: 0, marginRight: '-4rem', marginTop: '-4rem', width: '8rem', height: '8rem', borderRadius: '9999px', backgroundColor: '#f0fdfa', filter: 'blur(48px)', WebkitFilter: 'blur(48px)' }} />
 
-          <div className="relative">
-            <div className="flex justify-center mb-6">
-              <div className="h-16 w-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
-                <KeyRound size={28} strokeWidth={2.5} />
-              </div>
-            </div>
-
-            <h1 className="text-3xl font-extrabold text-slate-800 text-center mb-2 tracking-tight">{t('linkTitle')}</h1>
-            <p className="text-slate-500 text-center mb-8 leading-relaxed">
-              {t('linkSubtitle')}
-            </p>
-
-            <form onSubmit={handleLink} className="flex flex-col gap-5">
-              <div>
-                <input
-                  id="inviteCode"
-                  type="text"
-                  maxLength={6}
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  placeholder={t('inviteCodePlaceholder')}
-                  className="appearance-none w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-[0.3em] font-medium text-xl text-center text-slate-900 placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal transition-all duration-200"
-                  required
-                />
+            <div style={{ position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                <div style={{ height: '4rem', width: '4rem', backgroundColor: '#f0fdfa', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0d9488' }}>
+                  <KeyRound size={28} strokeWidth={2.5} />
+                </div>
               </div>
 
-              {error && (
-                <div className="bg-red-50 text-red-600 text-sm py-3 px-4 rounded-lg flex items-center justify-center border border-red-100">
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="bg-green-50 text-green-700 text-sm font-medium py-3 px-4 rounded-lg flex items-center justify-center border border-green-100">
-                  {success}
-                </div>
-              )}
+              <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: '#0f172a', textAlign: 'center', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t('linkTitle')}</h1>
+              <p style={{ color: '#64748b', textAlign: 'center', marginBottom: '2rem', lineHeight: 1.6 }}>
+                {t('linkSubtitle')}
+              </p>
 
-              <button
-                type="submit"
-                disabled={loading || inviteCode.length < 6}
-                className="group w-full bg-blue-600 text-white font-semibold flex items-center justify-center gap-2 py-4 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/20 disabled:opacity-50 disabled:hover:shadow-none disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98]"
-              >
-                {loading ? (
-                  <span className="animate-pulse">{t('verifying')}</span>
-                ) : (
-                  <>
-                    {t('connectBtn')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </>
+              <form onSubmit={handleLink} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <input
+                    id="inviteCode"
+                    type="text"
+                    maxLength={6}
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                    placeholder={t('inviteCodePlaceholder')}
+                    style={{ width: '100%', padding: '1rem 1.25rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, fontSize: '1.25rem', textAlign: 'center', color: '#0f172a', outline: 'none', boxSizing: 'border-box' }}
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', fontSize: '0.875rem', padding: '0.75rem 1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #fecaca' }}>
+                    {error}
+                  </div>
                 )}
-              </button>
-            </form>
+                {success && (
+                  <div style={{ backgroundColor: '#f0fdf4', color: '#15803d', fontSize: '0.875rem', fontWeight: 500, padding: '0.75rem 1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #dcfce7' }}>
+                    {success}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading || inviteCode.length < 6}
+                  style={{ width: '100%', backgroundColor: '#0d9488', color: '#ffffff', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', borderRadius: '0.75rem', border: 'none', cursor: loading || inviteCode.length < 6 ? 'not-allowed' : 'pointer', opacity: loading || inviteCode.length < 6 ? 0.5 : 1, fontSize: '1rem' }}
+                >
+                  {loading ? (
+                    <span>{t('verifying')}</span>
+                  ) : (
+                    <>
+                      {t('connectBtn')} <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
+        
+        <p style={{ marginTop: '2rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+          {t('requiresAuth')}
+        </p>
       </div>
-      
-      <p className="mt-8 text-sm text-slate-400">
-        {t('requiresAuth')}
-      </p>
     </div>
   );
 }
