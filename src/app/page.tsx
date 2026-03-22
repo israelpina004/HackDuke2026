@@ -62,11 +62,6 @@ export default async function Home() {
 
         <div style={{ position: 'relative', zIndex: 10, maxWidth: '64rem', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '5rem', paddingBottom: '6rem', textAlign: 'center' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#f0fdfa', color: '#0f766e', fontSize: '0.875rem', fontWeight: 500, padding: '0.375rem 1rem', borderRadius: '9999px', border: '1px solid #99f6e4', marginBottom: '2rem' }}>
-              <Activity style={{ height: '0.875rem', width: '0.875rem' }} />
-              <span>AI-Powered Discharge Planning</span>
-            </div>
-
             <h1 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#020617', letterSpacing: '-0.025em', lineHeight: 1.1, marginBottom: '1.5rem', maxWidth: '48rem', marginLeft: 'auto', marginRight: 'auto' }}>
               {t('heroHeadline')}
             </h1>
